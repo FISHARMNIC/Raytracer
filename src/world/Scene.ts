@@ -45,6 +45,8 @@ export class Scene {
     objects: Collection;
     lights: LightCollection;
 
+    samples: number = 8;
+
     private downscale_vec: Vec2;
 
 
@@ -55,6 +57,53 @@ export class Scene {
         this.downscale_vec = new Vec2(downscale, downscale);
     }
 
+
+    private sample(ray: Ray): {
+        hit: boolean,
+        color: ColorRGB,
+        minimum_light_distance: number
+    } {
+
+        let hit: boolean = false;
+        let paint_color: ColorRGB = new ColorRGB(1, 1, 1);
+        let minimum_light_distance: number = 100;
+
+        let bounces: number = 0;
+
+        for (; bounces < 10; bounces++) {
+
+            let closest = 1000;
+            let closest_object: null | Object3D = null;
+            const dir_v3 = ray.direction.to_vec3();
+
+            this.objects.forEach((object: Object3D) => {
+                const distance = object.distance(ray);
+                if (distance && distance < closest) {
+                    closest = distance;
+                    closest_object = object;
+                    hit = true;
+                }
+            })
+
+            if (closest < 1000) {
+                if (closest_object! instanceof Light) {
+                    minimum_light_distance = 0;
+                    break;
+                }
+
+                const hit_position = ray.position.add(dir_v3.scaled(closest));
+
+                ray = closest_object!.reflection(new Ray(hit_position, ray.direction));
+                paint_color = paint_color.add(closest_object!.color).scaled(0.5);
+                continue;
+            }
+        }
+
+        return {
+            hit, color: paint_color, minimum_light_distance
+        }
+
+    }
     public render() {
         canvas_render.clear();
 
@@ -65,40 +114,23 @@ export class Scene {
         */
         this.active_camera.scan((pos: Vec2, ray: Ray) => {
 
-            let hit: boolean = false;
-            let paint_color: ColorRGB = new ColorRGB(1, 1, 1);
-            let minimum_light_distance: number = 100;
+            let hit = false;
+            let paint_colors: ColorRGB[] = [];
+            let minimum_light_distances: number[] = [];
 
-            let bounces: number = 0;
+            for (let i = 0; i < this.samples; i++) {
+                const sample = this.sample(ray);
 
-            for (; bounces < 10; bounces++) {
-
-                let closest = 1000;
-                let closest_object: null | Object3D = null;
-                const dir_v3 = ray.direction.to_vec3();
-
-                this.objects.forEach((object: Object3D) => {
-                    const distance = object.distance(ray);
-                    if (distance && distance < closest) {
-                        closest = distance;
-                        closest_object = object;
-                        hit = true;
-                    }
-                })
-
-                if (closest < 1000) {
-                    if (closest_object! instanceof Light) {
-                        minimum_light_distance = 0;
-                        break;
-                    }
-
-                    const hit_position = ray.position.add(dir_v3.scaled(closest));
-
-                    ray = closest_object!.reflection(new Ray(hit_position, ray.direction));
-                    paint_color = paint_color.add(closest_object!.color).scaled(0.5);
-                    continue;
+                if (sample.hit) {
+                    hit = true;
                 }
+
+                paint_colors.push(sample.color);
+                minimum_light_distances.push(sample.minimum_light_distance);
             }
+
+            const paint_color = paint_colors.reduce((a, b) => a.add(b)).scaled(1 / this.samples);
+            const minimum_light_distance = minimum_light_distances.reduce((a, b) => a + b) / this.samples;
 
             if (hit) {
                 const ambient = 0.5;
