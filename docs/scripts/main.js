@@ -1,5 +1,6 @@
 import { canvas_constants, canvas_render } from "./rendering/canvas.js";
 import { Light } from "./shapes/Light.js";
+import { Object3D } from "./shapes/Object3D.js";
 import { Plane } from "./shapes/Plane.js";
 import { Sphere } from "./shapes/Sphere.js";
 import { NormalizedVec3, Vec2, Vec3 } from "./util/Vec.js";

@@ -1,7 +1,7 @@
 import { Ray } from "../util/Ray.js";
 import { NormalizedVec3, Vec3 } from "../util/Vec.js";
 
-export class Object3D {
+export abstract class Object3D {
     position: Vec3;
     hue: number;
     diffusion: number = 0.05;
