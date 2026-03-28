@@ -11,21 +11,25 @@ import { Scene } from "./world/Scene.js";
 // scene.objects.add(sphere);
 // scene.objects.add(light);
 // scene.render();
+const render_downscale = 3;
 const spheres = [
-    new Sphere(new Vec3(0, 0, 50), 10),
+    new Sphere(new Vec3(12.5, 0, 50), 10),
+    new Sphere(new Vec3(-12.5, 0, 50), 10, 100),
+    new Sphere(new Vec3(0, -20, 50), 10, 200),
 ];
-const light = new Light(new Vec3(-30, -30, 30), 30, 100);
+const light = new Light(new Vec3(-50, -50, 30), 30, 100);
+const downscale_vec = new Vec2(render_downscale, render_downscale);
 let camera_position = Vec3.zero();
 let camera_direction = NormalizedVec3.z_vec();
-const render_downscale = 4;
 const camera = new Camera(camera_position, camera_direction, canvas_constants.size.scaled(1 / render_downscale));
 const render_function = () => {
     canvas_render.clear();
     camera.scan((pos, ray) => {
         let hit = false;
-        let paint_brightness = 30;
         let paint_hue = 0;
-        for (let age = 0; age < 200; age++) {
+        let minimum_light_distance = 100;
+        let age = 0;
+        for (; age < 100; age++) {
             spheres.forEach((sphere) => {
                 if (sphere.within_radius(ray.position)) {
                     ray = sphere.reflection(ray);
@@ -33,14 +37,18 @@ const render_function = () => {
                     hit = true;
                 }
             });
-            if (light.within_radius(ray.position)) {
-                paint_brightness = 60;
+            const light_info = light.radius_info(ray.position);
+            if (light_info.within_rad && hit) {
+                minimum_light_distance = 0;
                 break;
+            }
+            else if (light_info.distance < minimum_light_distance) {
+                minimum_light_distance = light_info.distance;
             }
             ray.step();
         }
         if (hit) {
-            canvas_render.draw_pixel(pos, { color: `hsl(${paint_hue}, 77%, ${paint_brightness}%)`, size: new Vec2(render_downscale, render_downscale) });
+            canvas_render.draw_pixel(pos, { color: `hsl(${paint_hue}, 77%, ${(100 - minimum_light_distance) / 1.1}%)`, size: downscale_vec });
         }
     });
     console.log("DONE");

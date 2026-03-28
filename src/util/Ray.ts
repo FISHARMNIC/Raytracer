@@ -8,7 +8,7 @@ export class Ray
     constructor(position: Vec3, direction: NormalizedVec3)
     {
         this.position = position;
-        this.direction = direction;
+        this.direction = direction.to_vec3().scaled(0.5).normalized();
     }
 
     public step()

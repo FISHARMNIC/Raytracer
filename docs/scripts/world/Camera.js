@@ -9,7 +9,7 @@ export class Camera {
         this.move_camera_all({
             position,
             normal,
-            focal_length: 20,
+            focal_length: 10,
             width_rads: Math.PI / 2,
             height_rads: Math.PI / 2,
             resolution
