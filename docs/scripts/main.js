@@ -23,6 +23,7 @@ const scene = new Scene(camera, objects, lights, render_downscale);
 scene.render();
 window.addEventListener('keydown', (e) => {
     switch (e.code) {
+        // @todo this is also wrong. breaks once it goes vertical
         case 'ArrowLeft':
             camera_direction = camera_direction.to_vec3().sub(new Vec3(Math.PI / 30, 0, 0)).normalized();
             break;
