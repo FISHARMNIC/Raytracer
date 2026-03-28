@@ -30,8 +30,8 @@ export abstract class Object3D {
         return null;
     }
 
-    protected compute_reflection(ray: Ray, normal: NormalizedVec3, surface_point: Vec3): Ray {
-        const dir_v3: Vec3 = ray.direction.to_vec3();
+    protected compute_reflection(surface_point_ray: Ray, normal: NormalizedVec3): Ray {
+        const dir_v3: Vec3 = surface_point_ray.direction.to_vec3();
 
         // https://math.stackexchange.com/questions/13261/how-to-get-a-reflection-vector
         // r = d - 2(d dot n)n where n is normal and d is incoming direction
@@ -42,7 +42,7 @@ export abstract class Object3D {
 
         // pushes the vector to the radius + a little more. Prevents intersecting with it again and weird reflections
         const reflected_ray = new Ray(
-            surface_point.add(normal.to_vec3().scaled(0.001)), // pushes off edge
+            surface_point_ray.position.add(normal.to_vec3().scaled(0.001)), // pushes off edge
             diffused_reflection
         );
 

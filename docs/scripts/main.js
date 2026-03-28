@@ -2,25 +2,27 @@ import { canvas_constants } from "./rendering/canvas.js";
 import { Light } from "./shapes/Light.js";
 import { Plane } from "./shapes/Plane.js";
 import { Sphere } from "./shapes/Sphere.js";
+import { Triangle } from "./shapes/Triangle.js";
 import { ColorRGB, NormalizedVec3, Vec3 } from "./util/Vec.js";
 import { Camera } from "./world/Camera.js";
 import { Collection, LightCollection, Scene } from "./world/Scene.js";
-const render_downscale = 5;
+const render_downscale = 3;
 const objects = new Collection([
     new Sphere(new Vec3(12.5, 0, 50), 10, new ColorRGB(1.0, 0, 0), 0.1),
     new Sphere(new Vec3(-12.5, 0, 50), 10, new ColorRGB(0, 1.0, 0), 0.7),
     new Sphere(new Vec3(0, -20, 50), 10, new ColorRGB(0, 0, 1.0)),
     new Plane({ a: 0, b: 1, c: 1, d: -90 }, new ColorRGB(0.5, 0.5, 0.1), 0.02),
+    // new Triangle({
+    //     v0: new Vec3(-90, -90, 90),
+    //     v1: new Vec3(90,-90,90),
+    //     v2: new Vec3(0, 90, 90)
+    // }, new ColorRGB(0.5, 0.5, 0.1)),
     new Light(new Vec3(-30, -30, 30), 10, 100),
-]);
-const lights = new LightCollection([
-    new Light(new Vec3(-50, -50, 30), 30, 100),
-    // new Light(new Vec3(50, -50, 30), 30, 100),
 ]);
 let camera_position = Vec3.zero();
 let camera_direction = NormalizedVec3.z_vec();
 const camera = new Camera(camera_position, camera_direction, canvas_constants.size.scaled(1 / render_downscale));
-const scene = new Scene(camera, objects, lights, render_downscale);
+const scene = new Scene(camera, objects, render_downscale);
 scene.render();
 window.addEventListener('keydown', (e) => {
     switch (e.code) {

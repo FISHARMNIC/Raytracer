@@ -20,7 +20,7 @@ export class Plane extends Object3D {
         if (normal.to_vec3().dot(ray.direction.to_vec3()) > 0) {
             normal = normal.to_vec3().scaled(-1).normalized();
         }
-        return super.compute_reflection(ray, normal, ray.position);
+        return super.compute_reflection(ray, normal);
     }
     distance(ray) {
         const normal = new Vec3(this.constants.a, this.constants.b, this.constants.c);

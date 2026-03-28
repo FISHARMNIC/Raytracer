@@ -40,7 +40,7 @@ export class Plane extends Object3D {
             normal = normal.to_vec3().scaled(-1).normalized();
         }
 
-        return super.compute_reflection(ray, normal, ray.position);
+        return super.compute_reflection(ray, normal);
     }
 
     public distance(ray: Ray): number | null {
