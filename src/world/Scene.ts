@@ -1,7 +1,8 @@
 import { canvas_render } from "../rendering/canvas.js";
-import type { Light } from "../shapes/Light.js";
+import { Light } from "../shapes/Light.js";
 import type { Object3D } from "../shapes/Object3D.js";
-import type { Ray } from "../util/Ray.js";
+import { Sphere } from "../shapes/Sphere.js";
+import { Ray } from "../util/Ray.js";
 import { ColorRGB, Vec2 } from "../util/Vec.js";
 import type { Camera } from "./Camera.js";
 
@@ -58,7 +59,9 @@ export class Scene {
         canvas_render.clear();
 
         /*
-        @todo instead of walking, compute closest intercept 
+        @todo instead of walking, compute closest intercept
+        @todo async threading 
+        @todo multiple samples
         */
         this.active_camera.scan((pos: Vec2, ray: Ray) => {
 
@@ -66,44 +69,39 @@ export class Scene {
             let paint_color: ColorRGB = new ColorRGB(1, 1, 1);
             let minimum_light_distance: number = 100;
 
-            let age: number = 0;
-            for (; age < 200; age++) {
+            let bounces: number = 0;
 
-                this.objects.some((object: Object3D) => {
-                    if (object.check_hit(ray.position)) {
-                        ray = object.reflection(ray);
+            for (; bounces < 10; bounces++) {
 
-                        paint_color = paint_color.add(object.color).scaled(0.5);
+                let closest = 1000;
+                let closest_object: null | Object3D = null;
+                const dir_v3 = ray.direction.to_vec3();
 
+                this.objects.forEach((object: Object3D) => {
+                    const distance = object.distance(ray);
+                    if (distance && distance < closest) {
+                        closest = distance;
+                        closest_object = object;
                         hit = true;
-                        return true;
                     }
-
-                    return false;
                 })
 
-                const direct_hit: boolean = this.lights.some((light: Light): boolean => {
-                    const light_info = light.radius_info(ray.position);
-                    
-                    if (light_info.within_rad && hit) {
+                if (closest < 1000) {
+                    if (closest_object! instanceof Light) {
                         minimum_light_distance = 0;
-                        return true;
-                    } else if (light_info.distance < minimum_light_distance && hit) {
-                        minimum_light_distance = light_info.distance;
+                        break;
                     }
 
-                    return false;
-                })
+                    const hit_position = ray.position.add(dir_v3.scaled(closest));
 
-                if (direct_hit) {
-                    break;
+                    ray = closest_object!.reflection(new Ray(hit_position, ray.direction));
+                    paint_color = paint_color.add(closest_object!.color).scaled(0.5);
+                    continue;
                 }
-
-                ray.step();
             }
 
             if (hit) {
-                const ambient = 0.2;
+                const ambient = 0.5;
                 const brightness = ambient + ((1 - ambient) * (100 - minimum_light_distance) / 100);
                 const c = paint_color.scaled(brightness * 255);
                 canvas_render.draw_pixel(pos, { color: `rgb(${c.x}, ${c.y}, ${c.z})`, size: this.downscale_vec });

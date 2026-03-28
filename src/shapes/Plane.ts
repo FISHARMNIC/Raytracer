@@ -14,8 +14,8 @@ export class Plane extends Object3D {
 
     private computed_cmag: number;
 
-    constructor(constants: Plane_Constants, color: ColorRGB) {
-        super(Vec3.zero(), color);
+    constructor(constants: Plane_Constants, color: ColorRGB, diffuse: number) {
+        super(Vec3.zero(), color, diffuse);
         this.constants = constants;
 
         this.computed_cmag = Math.sqrt(constants.a ** 2 + constants.b ** 2 + constants.c ** 2);
@@ -29,13 +29,29 @@ export class Plane extends Object3D {
     }
 
     public reflection(ray: Ray): Ray {
-        const normal: NormalizedVec3 = new Vec3(
+        let normal: NormalizedVec3 = new Vec3(
             this.constants.a / this.computed_cmag,
             this.constants.b / this.computed_cmag,
             this.constants.c / this.computed_cmag,
         ).normalized();
 
-        // return new Ray(ray.position, Vec3.zero().normalized());
+        // back side. flip normal
+        if (normal.to_vec3().dot(ray.direction.to_vec3()) > 0) {
+            normal = normal.to_vec3().scaled(-1).normalized();
+        }
+
         return super.compute_reflection(ray, normal, ray.position);
+    }
+
+    public distance(ray: Ray): number | null {
+        const normal = new Vec3(this.constants.a, this.constants.b, this.constants.c);
+
+        const denom = normal.dot(ray.direction.to_vec3());
+
+        if (Math.abs(denom) < 0.0001) return null;
+
+        const t = -(normal.dot(ray.position) + this.constants.d) / denom;
+
+        return t > 0 ? t : null;
     }
 }

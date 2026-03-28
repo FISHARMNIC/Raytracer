@@ -4,11 +4,12 @@ import { ColorRGB, NormalizedVec3, Vec3 } from "../util/Vec.js";
 export abstract class Object3D {
     position: Vec3;
     color: ColorRGB;
-    diffusion: number = 0.05;
+    diffusion: number;
 
-    constructor(position: Vec3, color: ColorRGB = new ColorRGB(0.5,0.5,0.5)) {
+    constructor(position: Vec3, color: ColorRGB = new ColorRGB(0.5,0.5,0.5), diffusion: number = 0) {
         this.position = position;
         this.color = color;
+        this.diffusion = diffusion;
     }
 
     private generate_diffusion_noise(): number {
@@ -22,6 +23,11 @@ export abstract class Object3D {
     public reflection(ray: Ray): Ray
     {
         return ray;
+    }
+
+    public distance(ray: Ray): number | null
+    {
+        return null;
     }
 
     protected compute_reflection(ray: Ray, normal: NormalizedVec3, surface_point: Vec3): Ray {
