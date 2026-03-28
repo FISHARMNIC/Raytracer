@@ -1,11 +1,11 @@
 import { Ray } from "../util/Ray.js";
-import { NormalizedVec3, Vec3 } from "../util/Vec.js";
+import { ColorRGB, NormalizedVec3, Vec3 } from "../util/Vec.js";
 import { Object3D } from "./Object3D.js";
 export class Plane extends Object3D {
     constants;
     computed_cmag;
-    constructor(constants, hue) {
-        super(Vec3.zero(), hue);
+    constructor(constants, color) {
+        super(Vec3.zero(), color);
         this.constants = constants;
         this.computed_cmag = Math.sqrt(constants.a ** 2 + constants.b ** 2 + constants.c ** 2);
     }
@@ -16,7 +16,7 @@ export class Plane extends Object3D {
     }
     reflection(ray) {
         const normal = new Vec3(this.constants.a / this.computed_cmag, this.constants.b / this.computed_cmag, this.constants.c / this.computed_cmag).normalized();
-        // return reflected_ray;
+        // return new Ray(ray.position, Vec3.zero().normalized());
         return super.compute_reflection(ray, normal, ray.position);
     }
 }

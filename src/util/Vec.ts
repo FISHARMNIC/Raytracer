@@ -162,3 +162,24 @@ export class NormalizedBasis {
         this.v = v;
     }
 }
+
+export class ColorRGB extends Vec3 {
+    
+    constructor(r: number, g: number, b: number)
+    {
+        super(r,g,b);
+
+    }
+
+    public get r() {
+        return this.x;
+    }
+
+    public get g() {
+        return this.y;
+    }
+
+    public get b() {
+        return this.z;
+    }
+}

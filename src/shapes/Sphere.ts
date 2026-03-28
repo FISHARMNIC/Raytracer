@@ -1,12 +1,12 @@
 import { Object3D } from "./Object3D.js";
-import { NormalizedVec3, Vec3 } from "../util/Vec.js";
+import { ColorRGB, NormalizedVec3, Vec3 } from "../util/Vec.js";
 import { Ray } from "../util/Ray.js";
 
 export class Sphere extends Object3D {
     private _radius: number;
 
-    constructor(position: Vec3, radius: number, hue?: number) {
-        super(position, hue);
+    constructor(position: Vec3, radius: number, color?: ColorRGB) {
+        super(position, color);
 
         this._radius = radius;
     }

@@ -1,5 +1,5 @@
 import { canvas_render } from "../rendering/canvas.js";
-import { Vec2 } from "../util/Vec.js";
+import { ColorRGB, Vec2 } from "../util/Vec.js";
 export class Collection {
     objects;
     constructor(objects = []) {
@@ -10,6 +10,9 @@ export class Collection {
     }
     forEach(callback) {
         this.objects.forEach(callback);
+    }
+    some(callback) {
+        return this.objects.some(callback);
     }
 }
 export class LightCollection extends Collection {
@@ -35,16 +38,18 @@ export class Scene {
         canvas_render.clear();
         this.active_camera.scan((pos, ray) => {
             let hit = false;
-            let paint_hue = 0;
+            let paint_color = new ColorRGB(1, 1, 1);
             let minimum_light_distance = 100;
             let age = 0;
             for (; age < 200; age++) {
-                this.objects.forEach((object) => {
+                this.objects.some((object) => {
                     if (object.check_hit(ray.position)) {
                         ray = object.reflection(ray);
-                        paint_hue = object.hue;
+                        paint_color = paint_color.add(object.color).scaled(0.5);
                         hit = true;
+                        return true;
                     }
+                    return false;
                 });
                 const direct_hit = this.lights.some((light) => {
                     const light_info = light.radius_info(ray.position);
@@ -63,7 +68,10 @@ export class Scene {
                 ray.step();
             }
             if (hit) {
-                canvas_render.draw_pixel(pos, { color: `hsl(${paint_hue}, 77%, ${(100 - minimum_light_distance) / 1.1}%)`, size: this.downscale_vec });
+                const ambient = 0.2;
+                const brightness = ambient + ((1 - ambient) * (100 - minimum_light_distance) / 100);
+                const c = paint_color.scaled(brightness * 255);
+                canvas_render.draw_pixel(pos, { color: `rgb(${c.x}, ${c.y}, ${c.z})`, size: this.downscale_vec });
             }
         });
         // @todo shadow. Wen at final point trace to light if hit anything then shadow?

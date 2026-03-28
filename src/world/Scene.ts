@@ -2,7 +2,7 @@ import { canvas_render } from "../rendering/canvas.js";
 import type { Light } from "../shapes/Light.js";
 import type { Object3D } from "../shapes/Object3D.js";
 import type { Ray } from "../util/Ray.js";
-import { Vec2 } from "../util/Vec.js";
+import { ColorRGB, Vec2 } from "../util/Vec.js";
 import type { Camera } from "./Camera.js";
 
 export class Collection {
@@ -19,14 +19,17 @@ export class Collection {
     public forEach(callback: (object: Object3D) => void) {
         this.objects.forEach(callback);
     }
+
+    public some(callback: (object: Object3D) => boolean) {
+        return this.objects.some(callback);
+    }
 }
 
 export class LightCollection extends Collection {
 
     declare objects: Light[];
 
-    constructor(objects: Light[] = [])
-    {
+    constructor(objects: Light[] = []) {
         super(objects);
     }
 
@@ -54,26 +57,34 @@ export class Scene {
     public render() {
         canvas_render.clear();
 
+        /*
+        @todo instead of walking, compute closest intercept 
+        */
         this.active_camera.scan((pos: Vec2, ray: Ray) => {
 
             let hit: boolean = false;
-            let paint_hue: number = 0;
+            let paint_color: ColorRGB = new ColorRGB(1, 1, 1);
             let minimum_light_distance: number = 100;
 
             let age: number = 0;
             for (; age < 200; age++) {
 
-                this.objects.forEach((object: Object3D) => {
+                this.objects.some((object: Object3D) => {
                     if (object.check_hit(ray.position)) {
                         ray = object.reflection(ray);
-                        paint_hue = object.hue;
-                        hit = true; // @ todo add color mixing
+
+                        paint_color = paint_color.add(object.color).scaled(0.5);
+
+                        hit = true;
+                        return true;
                     }
+
+                    return false;
                 })
 
                 const direct_hit: boolean = this.lights.some((light: Light): boolean => {
                     const light_info = light.radius_info(ray.position);
-
+                    
                     if (light_info.within_rad && hit) {
                         minimum_light_distance = 0;
                         return true;
@@ -84,8 +95,7 @@ export class Scene {
                     return false;
                 })
 
-                if(direct_hit)
-                {
+                if (direct_hit) {
                     break;
                 }
 
@@ -93,7 +103,10 @@ export class Scene {
             }
 
             if (hit) {
-                canvas_render.draw_pixel(pos, { color: `hsl(${paint_hue}, 77%, ${(100 - minimum_light_distance) / 1.1}%)`, size: this.downscale_vec });
+                const ambient = 0.2;
+                const brightness = ambient + ((1 - ambient) * (100 - minimum_light_distance) / 100);
+                const c = paint_color.scaled(brightness * 255);
+                canvas_render.draw_pixel(pos, { color: `rgb(${c.x}, ${c.y}, ${c.z})`, size: this.downscale_vec });
             }
         })
 

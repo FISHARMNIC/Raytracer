@@ -2,15 +2,15 @@ import { canvas_constants } from "./rendering/canvas.js";
 import { Light } from "./shapes/Light.js";
 import { Plane } from "./shapes/Plane.js";
 import { Sphere } from "./shapes/Sphere.js";
-import { NormalizedVec3, Vec3 } from "./util/Vec.js";
+import { ColorRGB, NormalizedVec3, Vec3 } from "./util/Vec.js";
 import { Camera } from "./world/Camera.js";
 import { Collection, LightCollection, Scene } from "./world/Scene.js";
-const render_downscale = 3;
+const render_downscale = 4;
 const objects = new Collection([
-    new Sphere(new Vec3(12.5, 0, 50), 10),
-    new Sphere(new Vec3(-12.5, 0, 50), 10, 100),
-    new Sphere(new Vec3(0, -20, 50), 10, 200),
-    new Plane({ a: 0, b: 1, c: 1, d: -80 }, 40)
+    new Sphere(new Vec3(12.5, 0, 50), 10, new ColorRGB(1.0, 0.1, 0.1)),
+    new Sphere(new Vec3(-12.5, 0, 50), 10, new ColorRGB(0.1, 1.0, 0.1)),
+    new Sphere(new Vec3(0, -20, 50), 10, new ColorRGB(0.1, 0.1, 1.0)),
+    new Plane({ a: 0, b: 1, c: 1, d: -80 }, new ColorRGB(0.5, 0.5, 0.1))
 ]);
 const lights = new LightCollection([
     new Light(new Vec3(-50, -50, 30), 30, 100),

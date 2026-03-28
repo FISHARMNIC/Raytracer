@@ -8,7 +8,7 @@ export class Light extends Sphere
 
     constructor(position: Vec3, radius: number, brightness: number)
     {
-        super(position, radius);
+        super(position, radius, );
         this.brightness = brightness;
     }
 }

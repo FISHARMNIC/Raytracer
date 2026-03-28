@@ -1,12 +1,12 @@
 import { Ray } from "../util/Ray.js";
-import { NormalizedVec3, Vec3 } from "../util/Vec.js";
+import { ColorRGB, NormalizedVec3, Vec3 } from "../util/Vec.js";
 export class Object3D {
     position;
-    hue;
+    color;
     diffusion = 0.05;
-    constructor(position, hue = 0) {
+    constructor(position, color = new ColorRGB(0.5, 0.5, 0.5)) {
         this.position = position;
-        this.hue = hue;
+        this.color = color;
     }
     generate_diffusion_noise() {
         return (Math.random() - 0.5) * this.diffusion;
