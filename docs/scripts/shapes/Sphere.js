@@ -15,12 +15,12 @@ export class Sphere extends Object3D {
         const within_rad = distance <= this._radius;
         return { distance, within_rad };
     }
-    within_radius(point) {
+    check_hit(point) {
         return this.radius_info(point).within_rad;
     }
     reflection(ray) {
         const normal = ray.position.sub(this.position).normalized();
         const surface_point = this.position.add(normal.to_vec3().scaled(this.radius)); // center + normal to point scaled to edge
-        return super.reflection(ray, normal, surface_point);
+        return super.compute_reflection(ray, normal, surface_point);
     }
 }

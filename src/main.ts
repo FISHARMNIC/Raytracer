@@ -1,5 +1,6 @@
 import { canvas_constants, canvas_render } from "./rendering/canvas.js";
 import { Light } from "./shapes/Light.js";
+import type { Object3D } from "./shapes/Object3D.js";
 import { Plane } from "./shapes/Plane.js";
 import { Sphere } from "./shapes/Sphere.js";
 import type { Ray } from "./util/Ray.js";
@@ -18,13 +19,10 @@ import { Scene } from "./world/Scene.js";
 
 const render_downscale: number = 4;
 
-const spheres = [
+const objects: Object3D[] = [
     new Sphere(new Vec3(12.5, 0, 50), 10),
     new Sphere(new Vec3(-12.5, 0, 50), 10, 100),
     new Sphere(new Vec3(0, -20, 50), 10, 200),
-];
-
-const planes = [
     new Plane({ a:0, b:1, c:1, d:-80}, 40)
 ];
 
@@ -50,21 +48,13 @@ const render_function = () => {
         let age: number = 0;
         for (; age < 200; age++) {
 
-            planes.forEach((plane: Plane) => {
-                if (plane.check_hit(ray.position)) {
-                    ray = plane.reflection(ray);
-                    paint_hue = plane.hue;
+            objects.forEach((object: Object3D) => {
+                if (object.check_hit(ray.position)) {
+                    ray = object.reflection(ray);
+                    paint_hue = object.hue;
                     hit = true;
                 }
             })
-
-            spheres.forEach((sphere: Sphere) => {
-                if (sphere.within_radius(ray.position)) {
-                    ray = sphere.reflection(ray);
-                    paint_hue = sphere.hue
-                    hit = true;
-                }
-            });
 
             const light_info = light.radius_info(ray.position);
 

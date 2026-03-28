@@ -17,6 +17,6 @@ export class Plane extends Object3D {
     reflection(ray) {
         const normal = new Vec3(this.constants.a / this.computed_cmag, this.constants.b / this.computed_cmag, this.constants.c / this.computed_cmag).normalized();
         // return reflected_ray;
-        return super.reflection(ray, normal, ray.position);
+        return super.compute_reflection(ray, normal, ray.position);
     }
 }

@@ -13,12 +13,10 @@ import { Scene } from "./world/Scene.js";
 // scene.objects.add(light);
 // scene.render();
 const render_downscale = 4;
-const spheres = [
+const objects = [
     new Sphere(new Vec3(12.5, 0, 50), 10),
     new Sphere(new Vec3(-12.5, 0, 50), 10, 100),
     new Sphere(new Vec3(0, -20, 50), 10, 200),
-];
-const planes = [
     new Plane({ a: 0, b: 1, c: 1, d: -80 }, 40)
 ];
 const light = new Light(new Vec3(-50, -50, 30), 30, 100);
@@ -34,17 +32,10 @@ const render_function = () => {
         let minimum_light_distance = 100;
         let age = 0;
         for (; age < 200; age++) {
-            planes.forEach((plane) => {
-                if (plane.check_hit(ray.position)) {
-                    ray = plane.reflection(ray);
-                    paint_hue = plane.hue;
-                    hit = true;
-                }
-            });
-            spheres.forEach((sphere) => {
-                if (sphere.within_radius(ray.position)) {
-                    ray = sphere.reflection(ray);
-                    paint_hue = sphere.hue;
+            objects.forEach((object) => {
+                if (object.check_hit(ray.position)) {
+                    ray = object.reflection(ray);
+                    paint_hue = object.hue;
                     hit = true;
                 }
             });

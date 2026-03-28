@@ -11,13 +11,20 @@ export class Object3D {
         this.hue = hue;
     }
 
-    // @todo check_hit and reflect should be for all children and can just call dynamically
-
     private generate_diffusion_noise(): number {
         return (Math.random() - 0.5) * this.diffusion;
     }
 
-    public reflection(ray: Ray, normal: NormalizedVec3, surface_point: Vec3): Ray {
+    public check_hit(vec3: Vec3): boolean {
+        return false;
+    }
+
+    public reflection(ray: Ray): Ray
+    {
+        return ray;
+    }
+
+    protected compute_reflection(ray: Ray, normal: NormalizedVec3, surface_point: Vec3): Ray {
         const dir_v3: Vec3 = ray.direction.to_vec3();
 
         // https://math.stackexchange.com/questions/13261/how-to-get-a-reflection-vector

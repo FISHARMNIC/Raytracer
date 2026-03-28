@@ -22,7 +22,7 @@ export class Sphere extends Object3D {
         return {distance, within_rad};
     }
 
-    public within_radius(point: Vec3): boolean {
+    public check_hit(point: Vec3): boolean {
         return this.radius_info(point).within_rad;
     }
 
@@ -31,6 +31,6 @@ export class Sphere extends Object3D {
         const normal: NormalizedVec3 = ray.position.sub(this.position).normalized();
         const surface_point = this.position.add(normal.to_vec3().scaled(this.radius)); // center + normal to point scaled to edge
 
-        return super.reflection(ray, normal, surface_point);
+        return super.compute_reflection(ray, normal, surface_point);
     }
 }

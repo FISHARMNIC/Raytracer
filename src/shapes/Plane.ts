@@ -36,6 +36,6 @@ export class Plane extends Object3D {
         ).normalized();
 
         // return reflected_ray;
-        return super.reflection(ray, normal, ray.position);
+        return super.compute_reflection(ray, normal, ray.position);
     }
 }
