@@ -1,5 +1,6 @@
 import { canvas_constants, canvas_render } from "./rendering/canvas.js";
 import { Light } from "./shapes/Light.js";
+import { Plane } from "./shapes/Plane.js";
 import { Sphere } from "./shapes/Sphere.js";
 import type { Ray } from "./util/Ray.js";
 import { NormalizedVec3, Vec2, Vec3 } from "./util/Vec.js";
@@ -15,13 +16,18 @@ import { Scene } from "./world/Scene.js";
 // scene.render();
 
 
-const render_downscale: number = 3;
+const render_downscale: number = 4;
 
 const spheres = [
     new Sphere(new Vec3(12.5, 0, 50), 10),
     new Sphere(new Vec3(-12.5, 0, 50), 10, 100),
     new Sphere(new Vec3(0, -20, 50), 10, 200),
 ];
+
+const planes = [
+    new Plane({ a:0, b:1, c:1, d:-80}, 40)
+];
+
 const light = new Light(new Vec3(-50, -50, 30), 30, 100);
 
 
@@ -42,7 +48,16 @@ const render_function = () => {
         let minimum_light_distance: number = 100;
 
         let age: number = 0;
-        for (; age < 100; age++) {
+        for (; age < 200; age++) {
+
+            planes.forEach((plane: Plane) => {
+                if (plane.check_hit(ray.position)) {
+                    ray = plane.reflection(ray);
+                    paint_hue = plane.hue;
+                    hit = true;
+                }
+            })
+
             spheres.forEach((sphere: Sphere) => {
                 if (sphere.within_radius(ray.position)) {
                     ray = sphere.reflection(ray);
@@ -56,7 +71,7 @@ const render_function = () => {
             if (light_info.within_rad && hit) {
                 minimum_light_distance = 0;
                 break;
-            } else if (light_info.distance < minimum_light_distance) {
+            } else if (light_info.distance < minimum_light_distance && hit) {
                 minimum_light_distance = light_info.distance;
             }
 

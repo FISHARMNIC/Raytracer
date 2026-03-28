@@ -27,21 +27,10 @@ export class Sphere extends Object3D {
     }
 
     public reflection(ray: Ray): Ray {
-        const dir_v3: Vec3 = ray.direction.to_vec3();
 
         const normal: NormalizedVec3 = ray.position.sub(this.position).normalized();
-
-        // https://math.stackexchange.com/questions/13261/how-to-get-a-reflection-vector
-        // r = d - 2(d dot n)n where n is normal and d is incoming direction
-        const reflection_vector: NormalizedVec3 = dir_v3.sub(normal.to_vec3().scaled(dir_v3.dot(normal) * 2)).normalized(); // @todo is .normalized() redundant?
-
-        // pushes the vector to the radius + a little more. Prevents intersecting with it again and weird reflections
         const surface_point = this.position.add(normal.to_vec3().scaled(this.radius)); // center + normal to point scaled to edge
-        const reflected_ray = new Ray(
-            surface_point.add(normal.to_vec3().scaled(0.001)), // pushes off edge
-            reflection_vector
-        );
 
-        return reflected_ray;
+        return super.reflection(ray, normal, surface_point);
     }
 }
