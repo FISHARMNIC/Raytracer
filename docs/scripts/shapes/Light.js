@@ -1,8 +1,9 @@
 import { Object3D } from "./Object3D.js";
-export class Light extends Object3D {
+import { Sphere } from "./Sphere.js";
+export class Light extends Sphere {
     brightness;
-    constructor(position, brightness) {
-        super(position);
+    constructor(position, radius, brightness) {
+        super(position, radius);
         this.brightness = brightness;
     }
 }

@@ -1,6 +1,7 @@
+import { Ray } from "../util/Ray.js";
 import { NormalizedBasis, NormalizedVec3, Vec2, Vec3 } from "../util/Vec.js";
 
-export type Camera_Callback = (renderplane_position: Vec2, ray: NormalizedVec3) => void;
+export type Camera_Callback = (renderplane_position: Vec2, ray: Ray) => void;
 export type Camera_Info = {
     position: Vec3;
     normal: NormalizedVec3;
@@ -29,7 +30,7 @@ export class Camera {
         this.move_camera_all({
             position,
             normal,
-            focal_length: 10,
+            focal_length: 20,
             width_rads: Math.PI / 2,
             height_rads: Math.PI / 2,
             resolution
@@ -46,27 +47,32 @@ export class Camera {
 
     }
 
-    private create_outgoing_ray(offset: Vec2): NormalizedVec3 {
+    private create_outgoing_ray(offset: Vec2): Ray {
         // Vector from camera -> walking point
-        return this.walking_point(offset).sub(this.info.position).normalized();
+
+        const position: Vec3 = this.walking_point(offset);
+        const direction: NormalizedVec3 = position.sub(this.info.position).normalized();
+
+        return new Ray(position, direction);
     }
 
     public scan(each_ray_do: Camera_Callback) {
 
     const scan: Vec2 = new Vec2(0,0);
 
-    for (let row = 0; row < this.info.resolution.y; row++) {
-        for (let col = 0; col < this.info.resolution.x; col++) {
+    for (scan.y = 0; scan.y < this.info.resolution.y; scan.y++) {
+        for (scan.x = 0; scan.x < this.info.resolution.x; scan.x++) {
 
             // center pixels
             const renderplane_position = new Vec2(
-                -this.computed.bounds.x + (col + 0.5) * this.computed.step.x,
-                -this.computed.bounds.y + (row + 0.5) * this.computed.step.y
+                -this.computed.bounds.x + (scan.x + 0.5) * this.computed.step.x,
+                -this.computed.bounds.y + (scan.y + 0.5) * this.computed.step.y
             );
 
-            const ray: NormalizedVec3 = this.create_outgoing_ray(renderplane_position);
+            const ray: Ray = this.create_outgoing_ray(renderplane_position);
+
             // make starting from 0,0
-            each_ray_do(renderplane_position.add(this.computed.bounds), ray);
+            each_ray_do(scan, ray);
         }
     }
     }

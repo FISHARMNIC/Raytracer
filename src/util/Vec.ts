@@ -48,6 +48,10 @@ export class Vec3 {
         return this._new(this.y * other.z - this.z * other.y, -(this.x * other.z - this.z * other.x), this.x * other.y - this.y * other.x);
     }
 
+    public distance(other: Vec3_Like): number {
+        return(this.sub(other).magnitude())
+    }
+
 
     public magnitude(): number {
         return Math.sqrt(this.dot(this));
@@ -66,15 +70,28 @@ export class Vec3 {
     }
 }
 
+// @todo add methods from Vec3 but then normalize after (normalized functions). Getting rid of to_vec3 should speed up a lot. MAYBE NOT -> CAN BE SIDE EFFECTS. MAYBE KEEP BUT ADD NORMALIZED FUNCTIONS
 export class NormalizedVec3 {
-    x!: number;
-    y!: number;
-    z!: number;
+    private _x!: number;
+    private _y!: number;
+    private _z!: number;
+
+    public get x() {
+        return this._x;
+    }
+
+    public get y() {
+        return this._y;
+    }
+
+    public get z() {
+        return this._z;
+    }
 
     private _from_vec3(vec3: Vec3): void {
-        this.x = vec3.x;
-        this.y = vec3.y;
-        this.z = vec3.z;
+        this._x = vec3.x;
+        this._y = vec3.y;
+        this._z = vec3.z;
     }
 
 
@@ -104,7 +121,7 @@ export class NormalizedVec3 {
     }
 
     public to_vec3(): Vec3 {
-        return new Vec3(this.x, this.y, this.z);
+        return new Vec3(this._x, this._y, this._z);
     }
 
     public static unsafe_from_vec3(vec3: Vec3): NormalizedVec3 {

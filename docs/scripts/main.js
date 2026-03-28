@@ -6,16 +6,74 @@ import { Camera } from "./world/Camera.js";
 import { Scene } from "./world/Scene.js";
 // const cam = new Camera(Vec3.zero(), NormalizedVec3.z_vec(), canvas_constants.size);
 // const scene = new Scene(cam);
-// const sphere = new Sphere(new Vec3(0, 0, 100), 10);
-// const light = new Light(new Vec3(30, 30, 80), 100);
+// const sphere = new Sphere(new Vec3(0, 0, 50), 10);
+// const light = new Light(new Vec3(-30, -30, 30), 30, 100);
 // scene.objects.add(sphere);
 // scene.objects.add(light);
 // scene.render();
-const camera = new Camera(Vec3.zero(), NormalizedVec3.z_vec(), canvas_constants.size);
-camera.scan((pos, ray) => {
-    console.log(pos);
-    if (pos.x > 100) {
-        canvas_render.draw_pixel(pos);
+const spheres = [
+    new Sphere(new Vec3(0, 0, 50), 10),
+];
+const light = new Light(new Vec3(-30, -30, 30), 30, 100);
+let camera_position = Vec3.zero();
+let camera_direction = NormalizedVec3.z_vec();
+const render_downscale = 4;
+const camera = new Camera(camera_position, camera_direction, canvas_constants.size.scaled(1 / render_downscale));
+const render_function = () => {
+    canvas_render.clear();
+    camera.scan((pos, ray) => {
+        let hit = false;
+        let paint_brightness = 30;
+        let paint_hue = 0;
+        for (let age = 0; age < 200; age++) {
+            spheres.forEach((sphere) => {
+                if (sphere.within_radius(ray.position)) {
+                    ray = sphere.reflection(ray);
+                    paint_hue = sphere.hue;
+                    hit = true;
+                }
+            });
+            if (light.within_radius(ray.position)) {
+                paint_brightness = 60;
+                break;
+            }
+            ray.step();
+        }
+        if (hit) {
+            canvas_render.draw_pixel(pos, { color: `hsl(${paint_hue}, 77%, ${paint_brightness}%)`, size: new Vec2(render_downscale, render_downscale) });
+        }
+    });
+    console.log("DONE");
+};
+render_function();
+window.addEventListener('keydown', (e) => {
+    switch (e.code) {
+        case 'ArrowLeft':
+            camera_direction = camera_direction.to_vec3().sub(new Vec3(Math.PI / 30, 0, 0)).normalized();
+            break;
+        case 'ArrowRight':
+            camera_direction = camera_direction.to_vec3().add(new Vec3(Math.PI / 30, 0, 0)).normalized();
+            break;
+        case 'ArrowUp':
+            camera_direction = camera_direction.to_vec3().sub(new Vec3(0, Math.PI / 30, 0)).normalized();
+            break;
+        case 'ArrowDown':
+            camera_direction = camera_direction.to_vec3().add(new Vec3(0, Math.PI / 30, 0)).normalized();
+            break;
+        case 'KeyW':
+            camera_position = camera_position.add(camera_direction.to_vec3().scaled(5));
+            break;
+        case 'KeyS':
+            camera_position = camera_position.sub(camera_direction.to_vec3().scaled(5));
+            break;
+        // @todo breaks when view is parallel
+        case 'KeyD':
+            camera_position = camera_position.add(camera_direction.to_vec3().cross(new Vec3(0, -1, 0)).scaled(5));
+            break;
+        case 'KeyA':
+            camera_position = camera_position.sub(camera_direction.to_vec3().cross(new Vec3(0, -1, 0)).scaled(5));
+            break;
     }
+    camera.move_camera({ position: camera_position, normal: camera_direction });
+    render_function();
 });
-console.log("DONE");

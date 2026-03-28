@@ -1,8 +1,8 @@
 export class Object3D {
     position;
-    color;
-    constructor(position, color = 'black') {
+    hue;
+    constructor(position, hue = 0) {
         this.position = position;
-        this.color = color;
+        this.hue = hue;
     }
 }

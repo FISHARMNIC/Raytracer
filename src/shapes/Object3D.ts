@@ -2,11 +2,11 @@ import type { Vec3 } from "../util/Vec.js";
 
 export class Object3D {
     position: Vec3;
-    color: string;
+    hue: number;
 
-    constructor(position: Vec3, color: string = 'black')
+    constructor(position: Vec3, hue: number = 0)
     {
         this.position = position;
-        this.color = color;
+        this.hue = hue;
     }
 }
