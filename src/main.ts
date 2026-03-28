@@ -1,81 +1,32 @@
-import { canvas_constants, canvas_render } from "./rendering/canvas.js";
+import { canvas_constants } from "./rendering/canvas.js";
 import { Light } from "./shapes/Light.js";
-import { Object3D } from "./shapes/Object3D.js";
 import { Plane } from "./shapes/Plane.js";
 import { Sphere } from "./shapes/Sphere.js";
-import type { Ray } from "./util/Ray.js";
-import { NormalizedVec3, Vec2, Vec3 } from "./util/Vec.js";
+import { NormalizedVec3, Vec3 } from "./util/Vec.js";
 import { Camera } from "./world/Camera.js";
-import { Scene } from "./world/Scene.js";
+import { Collection, LightCollection, Scene } from "./world/Scene.js";
 
-// const cam = new Camera(Vec3.zero(), NormalizedVec3.z_vec(), canvas_constants.size);
-// const scene = new Scene(cam);
-// const sphere = new Sphere(new Vec3(0, 0, 50), 10);
-// const light = new Light(new Vec3(-30, -30, 30), 30, 100);
-// scene.objects.add(sphere);
-// scene.objects.add(light);
-// scene.render();
+const render_downscale: number = 3;
 
-
-const render_downscale: number = 4;
-
-const objects: Object3D[] = [
+const objects: Collection =  new Collection([
     new Sphere(new Vec3(12.5, 0, 50), 10),
     new Sphere(new Vec3(-12.5, 0, 50), 10, 100),
     new Sphere(new Vec3(0, -20, 50), 10, 200),
     new Plane({ a:0, b:1, c:1, d:-80}, 40)
-];
+]);
 
-const light = new Light(new Vec3(-50, -50, 30), 30, 100);
-
-
-const downscale_vec: Vec2 = new Vec2(render_downscale, render_downscale);
+const lights: LightCollection = new LightCollection([
+    new Light(new Vec3(-50, -50, 30), 30, 100),
+    // new Light(new Vec3(50, -50, 30), 30, 100),
+]);
 
 let camera_position: Vec3 = Vec3.zero();
 let camera_direction: NormalizedVec3 = NormalizedVec3.z_vec();
-
 const camera = new Camera(camera_position, camera_direction, canvas_constants.size.scaled(1 / render_downscale));
 
-const render_function = () => {
-    canvas_render.clear();
+const scene = new Scene(camera, objects, lights, render_downscale);
 
-    camera.scan((pos: Vec2, ray: Ray) => {
-
-        let hit: boolean = false;
-        let paint_hue: number = 0;
-        let minimum_light_distance: number = 100;
-
-        let age: number = 0;
-        for (; age < 200; age++) {
-
-            objects.forEach((object: Object3D) => {
-                if (object.check_hit(ray.position)) {
-                    ray = object.reflection(ray);
-                    paint_hue = object.hue;
-                    hit = true;
-                }
-            })
-
-            const light_info = light.radius_info(ray.position);
-
-            if (light_info.within_rad && hit) {
-                minimum_light_distance = 0;
-                break;
-            } else if (light_info.distance < minimum_light_distance && hit) {
-                minimum_light_distance = light_info.distance;
-            }
-
-            ray.step();
-        }
-
-        if (hit) {
-            canvas_render.draw_pixel(pos, { color: `hsl(${paint_hue}, 77%, ${(100 - minimum_light_distance) / 1.1}%)`, size: downscale_vec });
-        }
-    })
-    console.log("DONE");
-}
-
-render_function();
+scene.render();
 
 window.addEventListener('keydown', (e) => {
     switch (e.code) {
@@ -110,5 +61,6 @@ window.addEventListener('keydown', (e) => {
     }
 
     camera.move_camera({ position: camera_position, normal: camera_direction });
-    render_function();
+    
+    scene.render();
 })
