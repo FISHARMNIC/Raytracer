@@ -67,7 +67,7 @@ export class Scene {
                     if (object.check_hit(ray.position)) {
                         ray = object.reflection(ray);
                         paint_hue = object.hue;
-                        hit = true;
+                        hit = true; // @ todo add color mixing
                     }
                 })
 
