@@ -96,6 +96,8 @@ export class Scene {
                 canvas_render.draw_pixel(pos, { color: `hsl(${paint_hue}, 77%, ${(100 - minimum_light_distance) / 1.1}%)`, size: this.downscale_vec });
             }
         })
+
+        // @todo shadow. Wen at final point trace to light if hit anything then shadow?
         console.log("DONE");
     }
 

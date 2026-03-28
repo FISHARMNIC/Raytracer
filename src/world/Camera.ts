@@ -58,23 +58,23 @@ export class Camera {
 
     public scan(each_ray_do: Camera_Callback) {
 
-    const scan: Vec2 = new Vec2(0,0);
+        const scan: Vec2 = new Vec2(0, 0);
 
-    for (scan.y = 0; scan.y < this.info.resolution.y; scan.y++) {
-        for (scan.x = 0; scan.x < this.info.resolution.x; scan.x++) {
+        for (scan.y = 0; scan.y < this.info.resolution.y; scan.y++) {
+            for (scan.x = 0; scan.x < this.info.resolution.x; scan.x++) {
 
-            // center pixels
-            const renderplane_position = new Vec2(
-                -this.computed.bounds.x + (scan.x + 0.5) * this.computed.step.x,
-                -this.computed.bounds.y + (scan.y + 0.5) * this.computed.step.y
-            );
+                // center pixels
+                const renderplane_position = new Vec2(
+                    -this.computed.bounds.x + (scan.x + 0.5) * this.computed.step.x,
+                    -this.computed.bounds.y + (scan.y + 0.5) * this.computed.step.y
+                );
 
-            const ray: Ray = this.create_outgoing_ray(renderplane_position);
+                const ray: Ray = this.create_outgoing_ray(renderplane_position);
 
-            // make starting from 0,0
-            each_ray_do(scan, ray);
+                // make starting from 0,0
+                each_ray_do(scan, ray);
+            }
         }
-    }
     }
 
     // type safe setup to ensure all entries get filled
