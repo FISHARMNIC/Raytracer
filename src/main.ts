@@ -13,7 +13,7 @@ const render_downscale: number = 3;
 const objects: Collection =  new Collection([
     new Sphere(new Vec3(12.5, 0, 50), 10, new ColorRGB(1.0, 0, 0), 0.1),
     new Sphere(new Vec3(-12.5, 0, 50), 10, new ColorRGB(0, 1.0, 0), 0.7),
-    new Sphere(new Vec3(0, -20, 50), 10, new ColorRGB(0, 0, 1.0)),
+    new Sphere(new Vec3(0, -20, 50), 10, new ColorRGB(0, 0.3, 1.0)),
     new Plane({ a:0, b:1, c:1, d:-90}, new ColorRGB(0.5, 0.5, 0.1), 0.02),
     
     // new Triangle({

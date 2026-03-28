@@ -14,13 +14,16 @@ export class Plane extends Object3D {
         const distance = Math.abs(this.constants.a * point.x + this.constants.b * point.y + this.constants.c * point.z + this.constants.d) / this.computed_cmag;
         return distance <= 0.5;
     }
-    reflection(ray) {
+    get_normal(ray) {
         let normal = new Vec3(this.constants.a / this.computed_cmag, this.constants.b / this.computed_cmag, this.constants.c / this.computed_cmag).normalized();
         // back side. flip normal
         if (normal.to_vec3().dot(ray.direction.to_vec3()) > 0) {
             normal = normal.to_vec3().scaled(-1).normalized();
         }
-        return super.compute_reflection(ray, normal);
+        return normal.diffused(this.diffusion);
+    }
+    reflection(ray) {
+        return super.compute_reflection(ray, this.get_normal(ray));
     }
     distance(ray) {
         const normal = new Vec3(this.constants.a, this.constants.b, this.constants.c);

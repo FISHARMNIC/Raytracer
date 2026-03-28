@@ -26,12 +26,14 @@ export class Sphere extends Object3D {
         return this.radius_info(point).within_rad;
     }
 
-    public reflection(ray: Ray): Ray {
-
+    public get_normal(ray: Ray): NormalizedVec3 {
         const normal: NormalizedVec3 = ray.position.sub(this.position).normalized();
-        // const surface_point = this.position.add(normal.to_vec3().scaled(this.radius)); // center + normal to point scaled to edge
+        
+        return normal.diffused(this.diffusion);
+    }
 
-        return super.compute_reflection(ray, normal);
+    public reflection(ray: Ray): Ray {
+        return super.compute_reflection(ray, this.get_normal(ray));
     }
 
     public distance(ray: Ray): number | null {

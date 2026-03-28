@@ -12,12 +12,13 @@ export abstract class Object3D {
         this.diffusion = diffusion;
     }
 
-    private generate_diffusion_noise(): number {
-        return (Math.random() - 0.5) * this.diffusion;
-    }
-
     public check_hit(vec3: Vec3): boolean {
         return false;
+    }
+
+    public get_normal(ray: Ray): NormalizedVec3
+    {
+        return Vec3.zero().normalized();
     }
 
     public reflection(ray: Ray): Ray
@@ -37,13 +38,13 @@ export abstract class Object3D {
         // r = d - 2(d dot n)n where n is normal and d is incoming direction
         const reflection_vector: NormalizedVec3 = dir_v3.sub(normal.to_vec3().scaled(dir_v3.dot(normal) * 2)).normalized(); // @todo is .normalized() redundant?
 
-        const diffusion_vec: Vec3 = new Vec3(this.generate_diffusion_noise(), this.generate_diffusion_noise(), this.generate_diffusion_noise());
-        const diffused_reflection = reflection_vector.to_vec3().add(diffusion_vec).normalized();
+        // const diffusion_vec: Vec3 = Vec3.diffusion_vector(this.diffusion);
+        // const diffused_reflection = reflection_vector.to_vec3().add(diffusion_vec).normalized();
 
         // pushes the vector to the radius + a little more. Prevents intersecting with it again and weird reflections
         const reflected_ray = new Ray(
             surface_point_ray.position.add(normal.to_vec3().scaled(0.001)), // pushes off edge
-            diffused_reflection
+            reflection_vector
         );
 
         return reflected_ray;

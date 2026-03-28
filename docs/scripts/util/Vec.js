@@ -52,6 +52,9 @@ export class Vec3 {
     static zero() {
         return new Vec3(0, 0, 0);
     }
+    static diffusion_vector(diffusion) {
+        return new Vec3((Math.random() - 0.5) * diffusion, (Math.random() - 0.5) * diffusion, (Math.random() - 0.5) * diffusion);
+    }
 }
 // @todo add methods from Vec3 but then normalize after (normalized functions). Getting rid of to_vec3 should speed up a lot. MAYBE NOT -> CAN BE SIDE EFFECTS. MAYBE KEEP BUT ADD NORMALIZED FUNCTIONS
 export class NormalizedVec3 {
@@ -95,10 +98,16 @@ export class NormalizedVec3 {
     static unsafe_from_vec3(vec3) {
         return new NormalizedVec3(vec3);
     }
+    diffused(diffusion) {
+        return this.to_vec3().add(Vec3.diffusion_vector(diffusion)).normalized();
+    }
 }
 export class Vec2 extends Vec3 {
     constructor(x, y) {
         super(x, y, 0);
+    }
+    _new(x, y, z) {
+        return new Vec3(x, y, z);
     }
     static zero() {
         return new Vec2(0, 0);
@@ -123,6 +132,9 @@ export class NormalizedBasis {
 export class ColorRGB extends Vec3 {
     constructor(r, g, b) {
         super(r, g, b);
+    }
+    _new(x, y, z) {
+        return new ColorRGB(x, y, z);
     }
     get r() {
         return this.x;

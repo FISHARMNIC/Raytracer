@@ -28,7 +28,7 @@ export class Plane extends Object3D {
         return distance <= 0.5;
     }
 
-    public reflection(ray: Ray): Ray {
+    public get_normal(ray: Ray): NormalizedVec3 {
         let normal: NormalizedVec3 = new Vec3(
             this.constants.a / this.computed_cmag,
             this.constants.b / this.computed_cmag,
@@ -40,7 +40,11 @@ export class Plane extends Object3D {
             normal = normal.to_vec3().scaled(-1).normalized();
         }
 
-        return super.compute_reflection(ray, normal);
+        return normal.diffused(this.diffusion);
+    }
+
+    public reflection(ray: Ray): Ray {
+        return super.compute_reflection(ray, this.get_normal(ray));
     }
 
     public distance(ray: Ray): number | null {

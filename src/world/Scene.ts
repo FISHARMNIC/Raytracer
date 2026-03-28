@@ -3,7 +3,7 @@ import { Light } from "../shapes/Light.js";
 import type { Object3D } from "../shapes/Object3D.js";
 import { Sphere } from "../shapes/Sphere.js";
 import { Ray } from "../util/Ray.js";
-import { ColorRGB, Vec2, Vec3 } from "../util/Vec.js";
+import { ColorRGB, NormalizedVec3, Vec2, Vec3 } from "../util/Vec.js";
 import type { Camera } from "./Camera.js";
 
 export class Collection {
@@ -54,7 +54,7 @@ export class Scene {
 
     private lights: LightCollection;
 
-    samples: number = 4;
+    samples: number = 1;
 
     private downscale_vec: Vec2;
 
@@ -70,25 +70,26 @@ export class Scene {
     }
 
 
-    private sample(ray: Ray): {
+    private sample(ray: Ray, do_shadows: boolean = true): {
         hit: boolean,
         color: ColorRGB,
         minimum_light_distance: number,
-        final_ray: Ray,
+        lightness: number
     } {
 
         let hit: boolean = false;
         let paint_color: ColorRGB = new ColorRGB(1, 1, 1);
         let minimum_light_distance: number = 100;
 
-        let final_ray: Ray = ray;
-
         let bounces: number = 0;
 
-        for (; bounces < 10; bounces++) {
+        let lightness = 1.0;
+
+        for (; bounces < 2; bounces++) {
 
             let closest = 1000;
-            let closest_object: null | Object3D = null;
+            // @ts-ignore
+            let closest_object: Object3D = null;
             const dir_v3 = ray.direction.to_vec3();
 
             this.objects.forEach((object: Object3D) => {
@@ -100,43 +101,42 @@ export class Scene {
                 }
             })
 
-            if (closest < 1000) {
-                if (closest_object! instanceof Light) {
+            if (hit && closest_object) {
+                if (closest_object instanceof Light) {
                     minimum_light_distance = 0;
                     break;
                 }
 
                 const hit_position: Vec3 = ray.position.add(dir_v3.scaled(closest));
 
-                const ray_at_hit: Ray = new Ray(hit_position, ray.direction);
+                if (do_shadows) {
+                    const normal = closest_object.get_normal(new Ray(hit_position, ray.direction));
+                    const in_shadow = this.shadow_sample(new Ray(hit_position, normal));
+                    lightness *= in_shadow / this.lights.amount();
+                }
 
-                final_ray = ray_at_hit;
-
-                ray = closest_object!.reflection(ray_at_hit);
+                // reflect and add color
+                ray = closest_object.reflection(new Ray(hit_position, ray.direction));
                 paint_color = paint_color.add(closest_object!.color).scaled(0.5);
                 continue;
             }
         }
 
         return {
-            hit, color: paint_color, minimum_light_distance, final_ray
+            hit, color: paint_color, minimum_light_distance, lightness
         }
 
     }
 
-    private shadow_sample(hit_ray: Ray): number {
-
-        let lights_hit: number = 0;
-
-        hit_ray.direction = hit_ray.direction.to_vec3().scaled(-1).normalized();
+    private shadow_sample(ray: Ray): number {
+        let lights_hit = 0;
 
         this.lights.forEach((light: Light) => {
-            const to_light = light.position.sub(hit_ray.position).normalized();
 
-            const shadow_origin = hit_ray.position.add(hit_ray.direction.to_vec3().scaled(0.001)); // same push off to avoid double intersection
+            const to_light = light.position.sub(ray.position).normalized();
+            const shadow_origin = ray.position.add(ray.direction.to_vec3().scaled(0.001));
             const shadow_ray = new Ray(shadow_origin, to_light);
-            
-            const sample = this.sample(shadow_ray);
+            const sample = this.sample(shadow_ray, false);
 
             if (sample.minimum_light_distance === 0) {
                 lights_hit++;
@@ -144,7 +144,6 @@ export class Scene {
         });
 
         return lights_hit;
-
     }
 
     public render() {
@@ -172,8 +171,7 @@ export class Scene {
                 paint_colors.push(sample.color);
                 minimum_light_distances.push(sample.minimum_light_distance);
 
-                const shadow_sample = this.shadow_sample(sample.final_ray);
-                shadow_info.push(shadow_sample);
+                shadow_info.push(sample.lightness);
             }
 
             // if(!hit)
@@ -181,7 +179,7 @@ export class Scene {
             //     return;
             // }
 
-            const lightness = (shadow_info.reduce((a, b) => a + b) / this.samples) / this.lights.amount();
+            const lightness = shadow_info.reduce((a, b) => a + b) / this.samples;
 
             const paint_color = paint_colors.reduce((a, b) => a.add(b)).scaled(1 / this.samples);
             const minimum_light_distance = minimum_light_distances.reduce((a, b) => a + b) / this.samples;

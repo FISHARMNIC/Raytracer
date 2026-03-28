@@ -18,10 +18,12 @@ export class Sphere extends Object3D {
     check_hit(point) {
         return this.radius_info(point).within_rad;
     }
-    reflection(ray) {
+    get_normal(ray) {
         const normal = ray.position.sub(this.position).normalized();
-        // const surface_point = this.position.add(normal.to_vec3().scaled(this.radius)); // center + normal to point scaled to edge
-        return super.compute_reflection(ray, normal);
+        return normal.diffused(this.diffusion);
+    }
+    reflection(ray) {
+        return super.compute_reflection(ray, this.get_normal(ray));
     }
     distance(ray) {
         // https://www.scratchapixel.com/lessons/3d-basic-rendering/minimal-ray-tracer-rendering-simple-shapes/ray-sphere-intersection.html

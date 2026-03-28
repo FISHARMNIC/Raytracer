@@ -9,11 +9,11 @@ export class Object3D {
         this.color = color;
         this.diffusion = diffusion;
     }
-    generate_diffusion_noise() {
-        return (Math.random() - 0.5) * this.diffusion;
-    }
     check_hit(vec3) {
         return false;
+    }
+    get_normal(ray) {
+        return Vec3.zero().normalized();
     }
     reflection(ray) {
         return ray;
@@ -26,11 +26,11 @@ export class Object3D {
         // https://math.stackexchange.com/questions/13261/how-to-get-a-reflection-vector
         // r = d - 2(d dot n)n where n is normal and d is incoming direction
         const reflection_vector = dir_v3.sub(normal.to_vec3().scaled(dir_v3.dot(normal) * 2)).normalized(); // @todo is .normalized() redundant?
-        const diffusion_vec = new Vec3(this.generate_diffusion_noise(), this.generate_diffusion_noise(), this.generate_diffusion_noise());
-        const diffused_reflection = reflection_vector.to_vec3().add(diffusion_vec).normalized();
+        // const diffusion_vec: Vec3 = Vec3.diffusion_vector(this.diffusion);
+        // const diffused_reflection = reflection_vector.to_vec3().add(diffusion_vec).normalized();
         // pushes the vector to the radius + a little more. Prevents intersecting with it again and weird reflections
         const reflected_ray = new Ray(surface_point_ray.position.add(normal.to_vec3().scaled(0.001)), // pushes off edge
-        diffused_reflection);
+        reflection_vector);
         return reflected_ray;
     }
 }
