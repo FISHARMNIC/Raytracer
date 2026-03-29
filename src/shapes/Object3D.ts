@@ -16,10 +16,10 @@ export abstract class Object3D {
         return false;
     }
 
-    public get_normal(ray: Ray): NormalizedVec3
-    {
-        return Vec3.zero().normalized();
-    }
+    // public get_normal(ray: Ray): NormalizedVec3
+    // {
+    //     return Vec3.zero().normalized();
+    // }
 
     public reflection(ray: Ray): Ray
     {

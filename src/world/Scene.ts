@@ -1,3 +1,4 @@
+import { constants } from "../constants.js";
 import { canvas_render } from "../rendering/canvas.js";
 import { Light } from "../shapes/Light.js";
 import type { Object3D } from "../shapes/Object3D.js";
@@ -54,7 +55,7 @@ export class Scene {
 
     private lights: LightCollection;
 
-    samples: number = 1;
+    samples: number = constants.SAMPLES;
 
     private downscale_vec: Vec2;
 
@@ -70,7 +71,7 @@ export class Scene {
     }
 
 
-    private sample(ray: Ray, do_shadows: boolean = true): {
+    private sample(ray: Ray, do_shadows: boolean = true, max_bounces: number = constants.MAX_BOUNCES): {
         hit: boolean,
         color: ColorRGB,
         minimum_light_distance: number,
@@ -81,11 +82,9 @@ export class Scene {
         let paint_color: ColorRGB = new ColorRGB(1, 1, 1);
         let minimum_light_distance: number = 100;
 
-        let bounces: number = 0;
+        let lightness = 0;
 
-        let lightness = 1.0;
-
-        for (; bounces < 2; bounces++) {
+        for (let bounces = 0; bounces < max_bounces; bounces++) {
 
             let closest = 1000;
             // @ts-ignore
@@ -110,14 +109,14 @@ export class Scene {
                 const hit_position: Vec3 = ray.position.add(dir_v3.scaled(closest));
 
                 if (do_shadows) {
-                    const normal = closest_object.get_normal(new Ray(hit_position, ray.direction));
-                    const in_shadow = this.shadow_sample(new Ray(hit_position, normal));
-                    lightness *= in_shadow / this.lights.amount();
+                    const in_shadow = this.shadow_sample(hit_position);
+                    lightness += in_shadow;
                 }
 
-                // reflect and add color
+                // reflect and combine colors
                 ray = closest_object.reflection(new Ray(hit_position, ray.direction));
                 paint_color = paint_color.add(closest_object!.color).scaled(0.5);
+
                 continue;
             }
         }
@@ -128,17 +127,19 @@ export class Scene {
 
     }
 
-    private shadow_sample(ray: Ray): number {
+    private shadow_sample(point: Vec3): number {
         let lights_hit = 0;
 
         this.lights.forEach((light: Light) => {
 
-            const to_light = light.position.sub(ray.position).normalized();
-            const shadow_origin = ray.position.add(ray.direction.to_vec3().scaled(0.001));
-            const shadow_ray = new Ray(shadow_origin, to_light);
-            const sample = this.sample(shadow_ray, false);
+            const to_light = light.position.sub(point).normalized();
+            // const shadow_origin = ray.position.add(ray.direction.to_vec3().scaled(0.001));
+   
+            const shadow_ray = new Ray(point.add(to_light.to_vec3().scaled(0.001)), to_light);
+            
+            const sample = this.sample(shadow_ray, false, 1);
 
-            if (sample.minimum_light_distance === 0) {
+            if (sample.minimum_light_distance == 0) {
                 lights_hit++;
             }
         });
@@ -159,7 +160,7 @@ export class Scene {
             let hit = false;
             let paint_colors: ColorRGB[] = [];
             let minimum_light_distances: number[] = [];
-            let shadow_info: number[] = [];
+            let shadow_info: number = 0;
 
             for (let i = 0; i < this.samples; i++) {
                 const sample = this.sample(ray);
@@ -171,7 +172,7 @@ export class Scene {
                 paint_colors.push(sample.color);
                 minimum_light_distances.push(sample.minimum_light_distance);
 
-                shadow_info.push(sample.lightness);
+                shadow_info += sample.lightness;
             }
 
             // if(!hit)
@@ -179,7 +180,7 @@ export class Scene {
             //     return;
             // }
 
-            const lightness = shadow_info.reduce((a, b) => a + b) / this.samples;
+            const lightness = shadow_info / (this.samples * this.lights.amount());
 
             const paint_color = paint_colors.reduce((a, b) => a.add(b)).scaled(1 / this.samples);
             const minimum_light_distance = minimum_light_distances.reduce((a, b) => a + b) / this.samples;

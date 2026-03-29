@@ -60,6 +60,8 @@ export class Camera {
 
         const scan: Vec2 = new Vec2(0, 0);
 
+        // let renderplane_position: Vec2 = new Vec
+
         for (scan.y = 0; scan.y < this.info.resolution.y; scan.y++) {
             for (scan.x = 0; scan.x < this.info.resolution.x; scan.x++) {
 

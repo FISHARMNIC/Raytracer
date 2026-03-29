@@ -12,9 +12,10 @@ export class Object3D {
     check_hit(vec3) {
         return false;
     }
-    get_normal(ray) {
-        return Vec3.zero().normalized();
-    }
+    // public get_normal(ray: Ray): NormalizedVec3
+    // {
+    //     return Vec3.zero().normalized();
+    // }
     reflection(ray) {
         return ray;
     }
