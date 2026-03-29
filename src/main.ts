@@ -8,7 +8,7 @@ import { ColorRGB, NormalizedVec3, Vec3 } from "./util/Vec.js";
 import { Camera } from "./world/Camera.js";
 import { Collection, LightCollection, Scene } from "./world/Scene.js";
 
-const render_downscale: number = 2;
+const render_downscale: number = 5;
 
 const objects: Collection =  new Collection([
     new Sphere(new Vec3(12.5, 0, 50), 10, new ColorRGB(1.0, 0, 0), 0.1),
@@ -24,7 +24,7 @@ const objects: Collection =  new Collection([
 
     // ...await parseOBJ('models/suzanne.obj', 10, new Vec3(0,0,30)),
 
-    new Light(new Vec3(-30, 0, 10), 10, 100),
+    new Light(new Vec3(-30, -30, 30), 10, 100),
 ]);
 
 console.log(objects.objects)

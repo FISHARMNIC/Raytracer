@@ -7,7 +7,7 @@ import { parseOBJ } from "./util/obj.js";
 import { ColorRGB, NormalizedVec3, Vec3 } from "./util/Vec.js";
 import { Camera } from "./world/Camera.js";
 import { Collection, LightCollection, Scene } from "./world/Scene.js";
-const render_downscale = 2;
+const render_downscale = 5;
 const objects = new Collection([
     new Sphere(new Vec3(12.5, 0, 50), 10, new ColorRGB(1.0, 0, 0), 0.1),
     new Sphere(new Vec3(-12.5, 0, 50), 10, new ColorRGB(0, 1.0, 0), 0.7),
@@ -19,7 +19,7 @@ const objects = new Collection([
         v2: new Vec3(0, 90, 90)
     }, new ColorRGB(1.0, 0.2, 0.6), 0),
     // ...await parseOBJ('models/suzanne.obj', 10, new Vec3(0,0,30)),
-    new Light(new Vec3(-30, 0, 10), 10, 100),
+    new Light(new Vec3(-30, -30, 30), 10, 100),
 ]);
 console.log(objects.objects);
 // let camera_position: Vec3 = Vec3.zero();
