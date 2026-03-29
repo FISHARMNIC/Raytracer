@@ -63,7 +63,7 @@ class Vec3Pool {
         return v;
     }
 }
-export const __pool = new Vec3Pool(2048);
+export const __pool = new Vec3Pool(32);
 export class NormalizedVec3 {
     _x;
     _y;

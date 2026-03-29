@@ -36,7 +36,7 @@ export abstract class Object3D {
 
         // https://math.stackexchange.com/questions/13261/how-to-get-a-reflection-vector
         // r = d - 2(d dot n)n where n is normal and d is incoming direction
-        const reflection_vector: NormalizedVec3 = dir_v3.sub(normal.to_vec3().scaled(dir_v3.dot(normal) * 2)).normalized().keepalive(); // @todo is .normalized() redundant?
+        const reflection_vector: NormalizedVec3 = dir_v3.sub(normal.to_vec3().scaled(dir_v3.dot(normal) * 2)).normalized(); // @todo is .normalized() redundant?
 
         // const diffusion_vec: Vec3 = Vec3.diffusion_vector(this.diffusion);
         // const diffused_reflection = reflection_vector.to_vec3().add(diffusion_vec).normalized();
