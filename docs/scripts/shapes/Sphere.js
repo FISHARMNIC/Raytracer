@@ -19,15 +19,15 @@ export class Sphere extends Object3D {
         return this.radius_info(point).within_rad;
     }
     get_normal(ray) {
-        const normal = ray.position.sub(this.position).normalized();
-        return normal.diffused(this.diffusion);
+        const normal = ray.position.sub(this.position).normalized().keepalive();
+        return normal.diffused(this.diffusion).keepalive();
     }
     reflection(ray) {
         return super.compute_reflection(ray, this.get_normal(ray));
     }
     distance(ray) {
         // https://www.scratchapixel.com/lessons/3d-basic-rendering/minimal-ray-tracer-rendering-simple-shapes/ray-sphere-intersection.html
-        const oc = ray.position.sub(this.position);
+        const oc = ray.position.sub(this.position).keepalive();
         const b = ray.direction.to_vec3().dot(oc) * 2;
         const c = oc.dot(oc) - (this.radius ** 2);
         const disc = b ** 2 - 4 * c;

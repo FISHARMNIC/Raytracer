@@ -33,14 +33,14 @@ export class Plane extends Object3D {
             this.constants.a / this.computed_cmag,
             this.constants.b / this.computed_cmag,
             this.constants.c / this.computed_cmag,
-        ).normalized();
+        ).normalized().keepalive();
 
         // back side. flip normal
         if (normal.to_vec3().dot(ray.direction.to_vec3()) > 0) {
-            normal = normal.to_vec3().scaled(-1).normalized();
+            normal = normal.to_vec3().scaled(-1).normalized().keepalive();
         }
 
-        return normal.diffused(this.diffusion);
+        return normal.diffused(this.diffusion).keepalive();
     }
 
     public reflection(ray: Ray): Ray {

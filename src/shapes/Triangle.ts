@@ -16,16 +16,16 @@ export class Triangle extends Object3D {
     constructor(points: {v0: Vec3, v1: Vec3, v2: Vec3}, color: ColorRGB, diffuse: number) {
         super(Vec3.zero(), color, diffuse);
 
-        this.v0 = points.v0;
-        this.v1 = points.v1;
-        this.v2 = points.v2;
+        this.v0 = points.v0.keepalive();
+        this.v1 = points.v1.keepalive();
+        this.v2 = points.v2.keepalive();
 
-        const e1 = this.v1.sub(this.v0);
-        const e2 = this.v2.sub(this.v0);
+        const e1 = this.v1.sub(this.v0).keepalive();
+        const e2 = this.v2.sub(this.v0).keepalive();
 
         this.computed = {
             e1, e2,
-            normal: e1.cross(e2).normalized()
+            normal: e1.cross(e2).normalized().keepalive()
         };
 
 
@@ -34,12 +34,12 @@ export class Triangle extends Object3D {
     public distance(ray: Ray): number | null {
         // https://en.wikipedia.org/wiki/M%C3%B6ller%E2%80%93Trumbore_intersection_algorithm
 
-        const dir_v3 = ray.direction.to_vec3();
+        const dir_v3 = ray.direction.to_vec3().keepalive();
 
-        const s = ray.position.sub(this.v0);
+        const s = ray.position.sub(this.v0).keepalive();
 
-        const s_cross_e1 = s.cross(this.computed.e1);
-        const d_cross_e2 = dir_v3.cross(this.computed.e2);
+        const s_cross_e1 = s.cross(this.computed.e1).keepalive();
+        const d_cross_e2 = dir_v3.cross(this.computed.e2).keepalive();
         const d_cross_e2_dot_e1 = d_cross_e2.dot(this.computed.e1);
 
         if (Math.abs(d_cross_e2_dot_e1) < 0.0001) {
@@ -62,7 +62,7 @@ export class Triangle extends Object3D {
     public reflection(ray: Ray): Ray {
 
         if (this.computed.normal.to_vec3().dot(ray.direction.to_vec3()) > 0) {
-            this.computed.normal = this.computed.normal.to_vec3().scaled(-1).normalized();
+            this.computed.normal = this.computed.normal.to_vec3().scaled(-1).normalized().keepalive();
         }
 
 

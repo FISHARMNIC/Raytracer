@@ -15,12 +15,12 @@ export class Plane extends Object3D {
         return distance <= 0.5;
     }
     get_normal(ray) {
-        let normal = new Vec3(this.constants.a / this.computed_cmag, this.constants.b / this.computed_cmag, this.constants.c / this.computed_cmag).normalized();
+        let normal = new Vec3(this.constants.a / this.computed_cmag, this.constants.b / this.computed_cmag, this.constants.c / this.computed_cmag).normalized().keepalive();
         // back side. flip normal
         if (normal.to_vec3().dot(ray.direction.to_vec3()) > 0) {
-            normal = normal.to_vec3().scaled(-1).normalized();
+            normal = normal.to_vec3().scaled(-1).normalized().keepalive();
         }
-        return normal.diffused(this.diffusion);
+        return normal.diffused(this.diffusion).keepalive();
     }
     reflection(ray) {
         return super.compute_reflection(ray, this.get_normal(ray));

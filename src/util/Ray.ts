@@ -7,12 +7,12 @@ export class Ray
 
     constructor(position: Vec3, direction: NormalizedVec3)
     {
-        this.position = position;
-        this.direction = direction.to_vec3().scaled(0.5).normalized();
+        this.position = position.keepalive();
+        this.direction = direction.to_vec3().scaled(0.5).normalized().keepalive();
     }
 
     public step()
     {
-        this.position = this.position.add(this.direction);
+        this.position = this.position.add(this.direction).keepalive();
     }
 }

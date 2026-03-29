@@ -27,9 +27,9 @@ export class Sphere extends Object3D {
     }
 
     public get_normal(ray: Ray): NormalizedVec3 {
-        const normal: NormalizedVec3 = ray.position.sub(this.position).normalized();
-        
-        return normal.diffused(this.diffusion);
+        const normal: NormalizedVec3 = ray.position.sub(this.position).normalized().keepalive();
+
+        return normal.diffused(this.diffusion).keepalive();
     }
 
     public reflection(ray: Ray): Ray {
@@ -38,7 +38,7 @@ export class Sphere extends Object3D {
 
     public distance(ray: Ray): number | null {
         // https://www.scratchapixel.com/lessons/3d-basic-rendering/minimal-ray-tracer-rendering-simple-shapes/ray-sphere-intersection.html
-        const oc = ray.position.sub(this.position);
+        const oc = ray.position.sub(this.position).keepalive();
         const b = ray.direction.to_vec3().dot(oc) * 2;
         const c = oc.dot(oc) - (this.radius ** 2);
         const disc = b ** 2 - 4 * c;

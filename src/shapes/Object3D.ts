@@ -7,7 +7,7 @@ export abstract class Object3D {
     diffusion: number;
 
     constructor(position: Vec3, color: ColorRGB = new ColorRGB(0.5,0.5,0.5), diffusion: number = 0) {
-        this.position = position;
+        this.position = position.keepalive();
         this.color = color;
         this.diffusion = diffusion;
     }
@@ -32,11 +32,11 @@ export abstract class Object3D {
     }
 
     protected compute_reflection(surface_point_ray: Ray, normal: NormalizedVec3): Ray {
-        const dir_v3: Vec3 = surface_point_ray.direction.to_vec3();
+        const dir_v3: Vec3 = surface_point_ray.direction.to_vec3().keepalive();
 
         // https://math.stackexchange.com/questions/13261/how-to-get-a-reflection-vector
         // r = d - 2(d dot n)n where n is normal and d is incoming direction
-        const reflection_vector: NormalizedVec3 = dir_v3.sub(normal.to_vec3().scaled(dir_v3.dot(normal) * 2)).normalized(); // @todo is .normalized() redundant?
+        const reflection_vector: NormalizedVec3 = dir_v3.sub(normal.to_vec3().scaled(dir_v3.dot(normal) * 2)).normalized().keepalive(); // @todo is .normalized() redundant?
 
         // const diffusion_vec: Vec3 = Vec3.diffusion_vector(this.diffusion);
         // const diffused_reflection = reflection_vector.to_vec3().add(diffusion_vec).normalized();

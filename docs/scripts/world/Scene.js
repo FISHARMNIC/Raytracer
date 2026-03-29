@@ -54,7 +54,7 @@ export class Scene {
             let closest = 1000;
             // @ts-ignore
             let closest_object = null;
-            const dir_v3 = ray.direction.to_vec3();
+            const dir_v3 = ray.direction.to_vec3().keepalive();
             this.objects.forEach((object) => {
                 const distance = object.distance(ray);
                 if (distance && distance < closest) {
@@ -68,14 +68,15 @@ export class Scene {
                     minimum_light_distance = 0;
                     break;
                 }
-                const hit_position = ray.position.add(dir_v3.scaled(closest));
+                const hit_position = ray.position.add(dir_v3.scaled(closest)).keepalive();
                 if (do_shadows) {
                     const in_shadow = this.shadow_sample(hit_position);
                     lightness += in_shadow;
                 }
                 // reflect and combine colors
                 ray = closest_object.reflection(new Ray(hit_position, ray.direction));
-                paint_color = paint_color.add(closest_object.color).scaled(0.5);
+                const p = paint_color.add(closest_object.color).scaled(0.5).keepalive();
+                paint_color = new ColorRGB(p.x, p.y, p.z);
                 continue;
             }
         }
@@ -86,7 +87,7 @@ export class Scene {
     shadow_sample(point) {
         let lights_hit = 0;
         this.lights.forEach((light) => {
-            const to_light = light.position.sub(point).normalized();
+            const to_light = light.position.sub(point).normalized().keepalive();
             // const shadow_origin = ray.position.add(ray.direction.to_vec3().scaled(0.001));
             const shadow_ray = new Ray(point.add(to_light.to_vec3().scaled(0.001)), to_light);
             const sample = this.sample(shadow_ray, false, 1);
@@ -122,14 +123,14 @@ export class Scene {
             //     return;
             // }
             const lightness = shadow_info / (this.samples * this.lights.amount());
-            const paint_color = paint_colors.reduce((a, b) => a.add(b)).scaled(1 / this.samples);
+            const paint_color = paint_colors.reduce((a, b) => a.add(b)).scaled(1 / this.samples).keepalive();
             const minimum_light_distance = minimum_light_distances.reduce((a, b) => a + b) / this.samples;
             if (hit) {
                 // console.log(shadowness);
                 const ambient = 0.5;
                 const half_am = ambient / 2;
                 const brightness = (half_am + ((1 - half_am) * (100 - minimum_light_distance) / 100)) * lightness + half_am;
-                const c = paint_color.scaled(brightness * 255);
+                const c = paint_color.scaled(brightness * 255).keepalive();
                 canvas_render.draw_pixel(pos, { color: `rgb(${c.x}, ${c.y}, ${c.z})`, size: this.downscale_vec });
             }
         });
