@@ -32,6 +32,7 @@ export class Camera {
         // let renderplane_position: Vec2 = new Vec
         for (scan.y = 0; scan.y < this.info.resolution.y; scan.y++) {
             for (scan.x = 0; scan.x < this.info.resolution.x; scan.x++) {
+                window.gx = scan.x;
                 // center pixels
                 const renderplane_position = new Vec2(-this.computed.bounds.x + (scan.x + 0.5) * this.computed.step.x, -this.computed.bounds.y + (scan.y + 0.5) * this.computed.step.y);
                 const ray = this.create_outgoing_ray(renderplane_position);
@@ -89,3 +90,4 @@ export class Camera {
         console.log('PLANE ORIGIN', this.computed.plane_origin);
     }
 }
+window.gx = 0;

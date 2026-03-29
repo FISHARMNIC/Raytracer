@@ -75,7 +75,11 @@ export class Scene {
                 }
                 // reflect and combine colors
                 ray = closest_object.reflection(new Ray(hit_position, ray.direction));
-                paint_color = paint_color.add(closest_object.color).scaled(0.5);
+                let color = closest_object.color;
+                color.x = Math.sin(ray.position.x);
+                color.y = Math.sin(ray.position.y);
+                color.z = Math.sin(ray.position.z);
+                paint_color = paint_color.add(color).scaled(0.5);
                 continue;
             }
         }
