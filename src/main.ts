@@ -11,10 +11,10 @@ import { Collection, LightCollection, Scene } from "./world/Scene.js";
 const render_downscale: number = 5;
 
 const objects: Collection =  new Collection([
-    new Sphere(new Vec3(12.5, 0, 50), 10, new ColorRGB(1.0, 0, 0), 0.1),
-    new Sphere(new Vec3(-12.5, 0, 50), 10, new ColorRGB(0, 1.0, 0), 0.7),
+    new Sphere(new Vec3(12.5, 0, 50), 10, new ColorRGB(1.0, 0, 0),0), // 0.1),
+    new Sphere(new Vec3(-12.5, 0, 50), 10, new ColorRGB(0, 1.0, 0),0), //0.7),
     new Sphere(new Vec3(0, -20, 50), 10, new ColorRGB(0, 0.3, 1.0)),
-    new Plane({ a:0, b:1, c:1, d:-90}, new ColorRGB(0.5, 0.5, 0.1), 0.05),
+    // new Plane({ a:0, b:1, c:1, d:-90}, new ColorRGB(0.5, 0.5, 0.1), 0),//0.05),
     
     new Triangle({
         v0: new Vec3(-90, -90, 90),
@@ -37,16 +37,17 @@ let camera_direction: NormalizedVec3 = NormalizedVec3.z_vec();
 // let camera_direction: NormalizedVec3 = NormalizedVec3.unsafe_from_vec3(new Vec3(0.387870613328645,-0.10053611199492526,0.9162144276865568))
 
 const camera = new Camera(camera_position, camera_direction, canvas_constants.size.scaled(1 / render_downscale));
-
 const scene = new Scene(camera, objects, render_downscale);
 
 scene.render();
 
 let n = 0;
 const interval = () => {
-    camera_position.x = Math.sin(n += 0.1) * 20;
-    camera.move_camera({ position: camera_position, normal: camera_direction });
-    scene.render();
+    // camera_position.x = Math.sin(n += 0.1) * 20;
+    // camera.move_camera({ position: camera_position, normal: camera_direction });
+
+    scene.objects.objects.at(-1)!.position = new Vec3(Math.sin(n += 0.1) * -30, -100, Math.cos(n += 0.1) * 50 + 30);
+        scene.render();
 
 
     requestAnimationFrame(interval);
@@ -77,6 +78,13 @@ window.addEventListener('keydown', (e) => {
             break;
         case 'KeyS':
             camera_position = camera_position.sub(camera_direction.to_vec3().scaled(5));
+            break;
+        
+        case 'KeyE':
+            camera_position.y = camera_position.y + 5;
+            break;
+        case 'KeyQ':
+            camera_position.y = camera_position.y - 5;
             break;
 
         // @todo breaks when view is parallel
