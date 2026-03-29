@@ -13,8 +13,8 @@ export class Triangle extends Object3D {
         normal: NormalizedVec3
     };
 
-    constructor(points: {v0: Vec3, v1: Vec3, v2: Vec3}, color: ColorRGB) {
-        super(Vec3.zero(), color, 0);
+    constructor(points: {v0: Vec3, v1: Vec3, v2: Vec3}, color: ColorRGB, diffuse: number) {
+        super(Vec3.zero(), color, diffuse);
 
         this.v0 = points.v0;
         this.v1 = points.v1;

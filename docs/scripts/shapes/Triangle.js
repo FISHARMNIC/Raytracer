@@ -5,8 +5,8 @@ export class Triangle extends Object3D {
     v1;
     v2;
     computed;
-    constructor(points, color) {
-        super(Vec3.zero(), color, 0);
+    constructor(points, color, diffuse) {
+        super(Vec3.zero(), color, diffuse);
         this.v0 = points.v0;
         this.v1 = points.v1;
         this.v2 = points.v2;

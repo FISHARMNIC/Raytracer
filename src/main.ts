@@ -3,11 +3,12 @@ import { Light } from "./shapes/Light.js";
 import { Plane } from "./shapes/Plane.js";
 import { Sphere } from "./shapes/Sphere.js";
 import { Triangle } from "./shapes/Triangle.js";
+import { parseOBJ } from "./util/obj.js";
 import { ColorRGB, NormalizedVec3, Vec3 } from "./util/Vec.js";
 import { Camera } from "./world/Camera.js";
 import { Collection, LightCollection, Scene } from "./world/Scene.js";
 
-const render_downscale: number = 5;
+const render_downscale: number = 2;
 
 const objects: Collection =  new Collection([
     new Sphere(new Vec3(12.5, 0, 50), 10, new ColorRGB(1.0, 0, 0), 0.1),
@@ -19,10 +20,14 @@ const objects: Collection =  new Collection([
         v0: new Vec3(-90, -90, 90),
         v1: new Vec3(90,-90,90),
         v2: new Vec3(0, 90, 90)
-    }, new ColorRGB(1.0, 0.2, 0.6)),
+    }, new ColorRGB(1.0, 0.2, 0.6), 0),
 
-    new Light(new Vec3(-30, -30, 30), 10, 100),
+    // ...await parseOBJ('models/suzanne.obj', 10, new Vec3(0,0,30)),
+
+    new Light(new Vec3(-30, 0, 10), 10, 100),
 ]);
+
+console.log(objects.objects)
 
 
 // let camera_position: Vec3 = Vec3.zero();

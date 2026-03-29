@@ -1,4 +1,4 @@
 export let constants = {
-    MAX_BOUNCES: 5,
-    SAMPLES: 8,
+    MAX_BOUNCES: 2,
+    SAMPLES: 3,
 }
