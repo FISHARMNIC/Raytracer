@@ -30,17 +30,29 @@ const objects: Collection =  new Collection([
 console.log(objects.objects)
 
 
-// let camera_position: Vec3 = Vec3.zero();
-// let camera_direction: NormalizedVec3 = NormalizedVec3.z_vec();
+let camera_position: Vec3 = Vec3.zero();
+let camera_direction: NormalizedVec3 = NormalizedVec3.z_vec();
 
-let camera_position: Vec3 = new Vec3(-29.7707124263116, 0, 12.201972948111205);
-let camera_direction: NormalizedVec3 = NormalizedVec3.unsafe_from_vec3(new Vec3(0.387870613328645,-0.10053611199492526,0.9162144276865568))
+// let camera_position: Vec3 = new Vec3(-29.7707124263116, 0, 12.201972948111205);
+// let camera_direction: NormalizedVec3 = NormalizedVec3.unsafe_from_vec3(new Vec3(0.387870613328645,-0.10053611199492526,0.9162144276865568))
 
 const camera = new Camera(camera_position, camera_direction, canvas_constants.size.scaled(1 / render_downscale));
 
 const scene = new Scene(camera, objects, render_downscale);
 
 scene.render();
+
+let n = 0;
+const interval = () => {
+    camera_position.x = Math.sin(n += 0.1) * 20;
+    camera.move_camera({ position: camera_position, normal: camera_direction });
+    scene.render();
+
+
+    requestAnimationFrame(interval);
+};
+
+requestAnimationFrame(interval);
 
 window.addEventListener('keydown', (e) => {
     switch (e.code) {
@@ -81,3 +93,4 @@ window.addEventListener('keydown', (e) => {
     console.log(camera_position, camera_direction)
     scene.render();
 })
+
