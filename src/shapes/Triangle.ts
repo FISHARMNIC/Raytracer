@@ -59,13 +59,18 @@ export class Triangle extends Object3D {
         return t;
     }
 
-    public reflection(ray: Ray): Ray {
-
+    public get_normal(ray: Ray): NormalizedVec3 {
         if (this.computed.normal.to_vec3().dot(ray.direction.to_vec3()) > 0) {
             this.computed.normal = this.computed.normal.to_vec3().scaled(-1).normalized();
         }
 
+        this.computed.normal = this.computed.normal.diffused(this.diffusion);
 
-        return super.compute_reflection(ray, this.computed.normal);
+        return this.computed.normal
+    }
+
+    public reflection(ray: Ray): Ray {
+
+        return super.compute_reflection(ray, this.get_normal(ray));
     }
 }

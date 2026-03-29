@@ -7,25 +7,61 @@ import { parseOBJ } from "./util/obj.js";
 import { ColorRGB, NormalizedVec3, Vec3 } from "./util/Vec.js";
 import { Camera } from "./world/Camera.js";
 import { Collection, LightCollection, Scene } from "./world/Scene.js";
-const render_downscale = 5;
+const render_downscale = 1;
 const objects = new Collection([
-    new Sphere(new Vec3(12.5, 0, 50), 10, new ColorRGB(1.0, 0, 0), 0.1),
-    new Sphere(new Vec3(-12.5, 0, 50), 10, new ColorRGB(0, 1.0, 0), 0.7),
-    new Sphere(new Vec3(0, -20, 50), 10, new ColorRGB(0, 0.3, 1.0)),
-    new Plane({ a: 0, b: 1, c: 1, d: -90 }, new ColorRGB(0.5, 0.5, 0.1), 0.05),
-    new Triangle({
-        v0: new Vec3(-90, -90, 90),
-        v1: new Vec3(90, -90, 90),
-        v2: new Vec3(0, 90, 90)
-    }, new ColorRGB(1.0, 0.2, 0.6), 0),
-    // ...await parseOBJ('models/suzanne.obj', 10, new Vec3(0,0,30)),
-    new Light(new Vec3(-30, -30, 30), 10, 100),
+    // back wall (z = 80, white)
+    new Triangle({ v0: new Vec3(-60, -60, 80), v1: new Vec3(60, -60, 80), v2: new Vec3(-60, 60, 80) }, new ColorRGB(0.73, 0.73, 0.73), 5),
+    new Triangle({ v0: new Vec3(60, -60, 80), v1: new Vec3(60, 60, 80), v2: new Vec3(-60, 60, 80) }, new ColorRGB(0.73, 0.73, 0.73), 5),
+    // left wall (x = -60, red)
+    new Triangle({ v0: new Vec3(-60, -60, 0), v1: new Vec3(-60, -60, 80), v2: new Vec3(-60, 60, 0) }, new ColorRGB(0.65, 0.05, 0.05), 5),
+    new Triangle({ v0: new Vec3(-60, -60, 80), v1: new Vec3(-60, 60, 80), v2: new Vec3(-60, 60, 0) }, new ColorRGB(0.65, 0.05, 0.05), 5),
+    // right wall (x = 60, green)
+    new Triangle({ v0: new Vec3(60, -60, 0), v1: new Vec3(60, 60, 0), v2: new Vec3(60, -60, 80) }, new ColorRGB(0.12, 0.45, 0.15), 5),
+    new Triangle({ v0: new Vec3(60, 60, 0), v1: new Vec3(60, 60, 80), v2: new Vec3(60, -60, 80) }, new ColorRGB(0.12, 0.45, 0.15), 5),
+    // floor (y = 60, white)
+    new Triangle({ v0: new Vec3(-60, 60, 0), v1: new Vec3(60, 60, 0), v2: new Vec3(-60, 60, 80) }, new ColorRGB(0.73, 0.73, 0.73), 5),
+    new Triangle({ v0: new Vec3(60, 60, 0), v1: new Vec3(60, 60, 80), v2: new Vec3(-60, 60, 80) }, new ColorRGB(0.73, 0.73, 0.73), 5),
+    // ceiling (y = -60, white)
+    new Triangle({ v0: new Vec3(-60, -60, 0), v1: new Vec3(-60, -60, 80), v2: new Vec3(60, -60, 0) }, new ColorRGB(0.73, 0.73, 0.73), 5),
+    new Triangle({ v0: new Vec3(60, -60, 0), v1: new Vec3(-60, -60, 80), v2: new Vec3(60, -60, 80) }, new ColorRGB(0.73, 0.73, 0.73), 5),
+    // tall box
+    // front face
+    new Triangle({ v0: new Vec3(-50, 0, 25), v1: new Vec3(-20, 0, 25), v2: new Vec3(-50, 60, 25) }, new ColorRGB(0.73, 0.73, 0.73), 2),
+    new Triangle({ v0: new Vec3(-20, 0, 25), v1: new Vec3(-20, 60, 25), v2: new Vec3(-50, 60, 25) }, new ColorRGB(0.73, 0.73, 0.73), 2),
+    // back face
+    new Triangle({ v0: new Vec3(-50, 0, 55), v1: new Vec3(-50, 60, 55), v2: new Vec3(-20, 0, 55) }, new ColorRGB(0.73, 0.73, 0.73), 2),
+    new Triangle({ v0: new Vec3(-20, 0, 55), v1: new Vec3(-50, 60, 55), v2: new Vec3(-20, 60, 55) }, new ColorRGB(0.73, 0.73, 0.73), 2),
+    // left face
+    new Triangle({ v0: new Vec3(-50, 0, 25), v1: new Vec3(-50, 60, 25), v2: new Vec3(-50, 0, 55) }, new ColorRGB(0.73, 0.73, 0.73), 2),
+    new Triangle({ v0: new Vec3(-50, 60, 25), v1: new Vec3(-50, 60, 55), v2: new Vec3(-50, 0, 55) }, new ColorRGB(0.73, 0.73, 0.73), 2),
+    // right face
+    new Triangle({ v0: new Vec3(-20, 0, 25), v1: new Vec3(-20, 0, 55), v2: new Vec3(-20, 60, 25) }, new ColorRGB(0.73, 0.73, 0.73), 2),
+    new Triangle({ v0: new Vec3(-20, 0, 55), v1: new Vec3(-20, 60, 55), v2: new Vec3(-20, 60, 25) }, new ColorRGB(0.73, 0.73, 0.73), 2),
+    // top face
+    new Triangle({ v0: new Vec3(-50, 0, 25), v1: new Vec3(-20, 0, 25), v2: new Vec3(-50, 0, 55) }, new ColorRGB(0.73, 0.73, 0.73), 2),
+    new Triangle({ v0: new Vec3(-20, 0, 25), v1: new Vec3(-20, 0, 55), v2: new Vec3(-50, 0, 55) }, new ColorRGB(0.73, 0.73, 0.73), 2),
+    // short box (right)
+    // front face
+    new Triangle({ v0: new Vec3(20, 30, 30), v1: new Vec3(50, 30, 30), v2: new Vec3(20, 60, 30) }, new ColorRGB(0.73, 0.73, 0.73), 0.1),
+    new Triangle({ v0: new Vec3(50, 30, 30), v1: new Vec3(50, 60, 30), v2: new Vec3(20, 60, 30) }, new ColorRGB(0.73, 0.73, 0.73), 0.1),
+    // back face
+    new Triangle({ v0: new Vec3(20, 30, 55), v1: new Vec3(20, 60, 55), v2: new Vec3(50, 30, 55) }, new ColorRGB(0.73, 0.73, 0.73), 0.1),
+    new Triangle({ v0: new Vec3(50, 30, 55), v1: new Vec3(20, 60, 55), v2: new Vec3(50, 60, 55) }, new ColorRGB(0.73, 0.73, 0.73), 0.1),
+    // left face
+    new Triangle({ v0: new Vec3(20, 30, 30), v1: new Vec3(20, 60, 30), v2: new Vec3(20, 30, 55) }, new ColorRGB(0.73, 0.73, 0.73), 0.1),
+    new Triangle({ v0: new Vec3(20, 60, 30), v1: new Vec3(20, 60, 55), v2: new Vec3(20, 30, 55) }, new ColorRGB(0.73, 0.73, 0.73), 0.1),
+    // right face
+    new Triangle({ v0: new Vec3(50, 30, 30), v1: new Vec3(50, 30, 55), v2: new Vec3(50, 60, 30) }, new ColorRGB(0.73, 0.73, 0.73), 0.1),
+    new Triangle({ v0: new Vec3(50, 30, 55), v1: new Vec3(50, 60, 55), v2: new Vec3(50, 60, 30) }, new ColorRGB(0.73, 0.73, 0.73), 0.1),
+    // top face
+    new Triangle({ v0: new Vec3(20, 30, 30), v1: new Vec3(50, 30, 30), v2: new Vec3(20, 30, 55) }, new ColorRGB(0.73, 0.73, 0.73), 0.1),
+    new Triangle({ v0: new Vec3(50, 30, 30), v1: new Vec3(50, 30, 55), v2: new Vec3(20, 30, 55) }, new ColorRGB(0.73, 0.73, 0.73), 0.1),
+    new Light(new Vec3(0, -58, 40), 12, 200),
 ]);
-console.log(objects.objects);
-// let camera_position: Vec3 = Vec3.zero();
-// let camera_direction: NormalizedVec3 = NormalizedVec3.z_vec();
-let camera_position = new Vec3(-29.7707124263116, 0, 12.201972948111205);
-let camera_direction = NormalizedVec3.unsafe_from_vec3(new Vec3(0.387870613328645, -0.10053611199492526, 0.9162144276865568));
+let camera_position = new Vec3(0, 0, -30);
+let camera_direction = NormalizedVec3.z_vec();
+// let camera_position: Vec3 = new Vec3(-29.7707124263116, 0, 12.201972948111205);
+// let camera_direction: NormalizedVec3 = NormalizedVec3.unsafe_from_vec3(new Vec3(0.387870613328645,-0.10053611199492526,0.9162144276865568))
 const camera = new Camera(camera_position, camera_direction, canvas_constants.size.scaled(1 / render_downscale));
 const scene = new Scene(camera, objects, render_downscale);
 scene.render();

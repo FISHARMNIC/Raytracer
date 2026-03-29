@@ -27,7 +27,7 @@ export class Camera {
         const direction = position.sub(this.info.position).normalized();
         return new Ray(position, direction);
     }
-    scan(each_ray_do) {
+    async scan(each_ray_do) {
         const scan = new Vec2(0, 0);
         // let renderplane_position: Vec2 = new Vec
         for (scan.y = 0; scan.y < this.info.resolution.y; scan.y++) {
@@ -38,6 +38,7 @@ export class Camera {
                 // make starting from 0,0
                 each_ray_do(scan, ray);
             }
+            await new Promise(resolve => setTimeout(resolve, 0));
         }
     }
     // type safe setup to ensure all entries get filled

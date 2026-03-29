@@ -56,7 +56,7 @@ export class Camera {
         return new Ray(position, direction);
     }
 
-    public scan(each_ray_do: Camera_Callback) {
+    public async scan(each_ray_do: Camera_Callback) {
 
         const scan: Vec2 = new Vec2(0, 0);
 
@@ -76,6 +76,9 @@ export class Camera {
                 // make starting from 0,0
                 each_ray_do(scan, ray);
             }
+
+        await new Promise(resolve => setTimeout(resolve, 0));
+
         }
     }
 
